@@ -1,0 +1,52 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+
+
+const publicationRoutes = require('./routes/publication');
+const userRoutes = require('./routes/user');
+const path = require('path');
+require('dotenv').config();
+
+//Connexion to database mySQL
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "1080Flip!",
+    database: "Projet7db",
+});
+connection.connect(function(err) {
+    if (err) {
+        console.error('error connecting: ' + err.stack);
+        return;
+    }
+    console.log('connected as id ' + connection.threadId);
+});
+
+//app is an express function
+const app = express();
+
+//headers to avoid CORS problems
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    next();
+});
+
+//Send response as json objects
+app.use(bodyParser.json());
+
+//Image folder
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+//Use the router for user requests
+app.use('/api/auth', userRoutes);
+/*
+//Use the router for sauces requests
+app.use('/api/sauces', sauceRoutes);
+*/
+
+
+module.exports = app;
