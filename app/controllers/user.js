@@ -2,62 +2,70 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const mysql = require('mysql');
+require('dotenv').config();
 
-const con = mysql.createConnection({
-    host: "localhost",
-    user: "yourusername",
-    password: "yourpassword",
-    database: "mydb"
+const connection = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
 });
+//SIGNUP CONTROLLER
 exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10) //Hash async
         .then(hash => {
-            const user = new User({
-                email: req.body.email,
-                password: hash,
+            console.log(req.body.username + " " + req.body.email + " " + hash);
+            //Creation of the sql instructions
+            const sql = `INSERT INTO users (username, email, password) VALUES ("${req.body.username}", "${req.body.email}", "${hash}")`;
+
+            connection.query(sql, function(err, result) {
+                if (err) {
+                    console.error('error connecting: ' + err.stack);
+                    return;
+                }
+                console.log('connected as id ' + connection.threadId);
+                console.log("Table created");
+                return res.status(200).json({ message: 'Utilisateur ajouté !' });
             });
-            console.log(user);
-
-
-
-            con.connect(function(err) {
-                if (err) throw err;
-                console.log("Connected!");
-                var sql = "CREATE TABLE customers (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), address VARCHAR(255))";
-                con.query(sql, function(err, result) {
-                    if (err) throw err;
-                    console.log("Table created");
-                });
-            });
-
-
-
-            user.save()
-                .then(() => res.status(201).json({ message: 'utilisateur créé !' }))
-                .catch(error => res.status(400).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
 };
 
 exports.login = (req, res, next) => {
-    User.findOne({ email: req.body.email })
-        .then(user => {
-            if (!user) {
-                return res.status(401).json({ error: 'Utilisateur non trouvé !' });
-            }
-            bcrypt.compare(req.body.password, user.password)
-                .then(valid => {
-                    if (!valid) {
-                        return res.status(401).json({ error: 'Mot de passe incorrect !' });
-                    }
-                    res.status(200).json({
-                        userId: user._id,
-                        token: jwt.sign({ userId: user._id },
-                            'RANDOM_TOKEN_SECRET', { expiresIn: '24h' }
-                        )
-                    });
-                })
-                .catch(error => res.status(500).json({ error }));
-        })
-        .catch(error => res.status(500).json({ error }));
+    connection.query(`SELECT * FROM users WHERE username='${req.body.username}'`, (err, rows) => {
+        if (err) {
+            console.error('error connecting: ' + err.stack);
+            return;
+        }
+        console.log(rows);
+        //If no user find
+        if (rows = []) {
+            return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+        };
+        //User find
+        console.log("identifiants récupérés");
+        return res.status(200).json({ message: 'Utilisateur trouvé !' });
+    });
+
+    /*
+        User.findOne({ email: req.body.email })
+            .then(user => {
+                if (!user) {
+                    return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+                }
+                bcrypt.compare(req.body.password, user.password)
+                    .then(valid => {
+                        if (!valid) {
+                            return res.status(401).json({ error: 'Mot de passe incorrect !' });
+                        }
+                        res.status(200).json({
+                            userId: user._id,
+                            token: jwt.sign({ userId: user._id },
+                                'RANDOM_TOKEN_SECRET', { expiresIn: '24h' }
+                            )
+                        });
+                    })
+                    .catch(error => res.status(500).json({ error }));
+            })
+            .catch(error => res.status(500).json({ error }));*/
 };
