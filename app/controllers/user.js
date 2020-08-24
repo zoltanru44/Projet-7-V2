@@ -11,6 +11,7 @@ const connection = mysql.createConnection({
     database: process.env.DB_NAME,
 });
 //SIGNUP CONTROLLER
+//To do --> Add unique validator
 exports.signup = (req, res, next) => {
     bcrypt.hash(req.body.password, 10) //Hash async
         .then(hash => {
@@ -38,14 +39,32 @@ exports.login = (req, res, next) => {
             return;
         }
         console.log(rows);
+
         //If no user find
-        if (rows = []) {
+        if (rows == undefined || rows.length === 0) {
             return res.status(401).json({ error: 'Utilisateur non trouvé !' });
         };
         //User find
         console.log("identifiants récupérés");
-        return res.status(200).json({ message: 'Utilisateur trouvé !' });
+        console.log(rows[0].id);
+        console.log(req.body.password);
+        console.log(rows[0].password);
+
+        bcrypt.compare(req.body.password, rows[0].password)
+            .then(valid => {
+                if (!valid) {
+                    return res.status(401).json({ error: 'Mot de passe incorrect !' });
+                }
+                return res.status(200).json({
+                    userId: rows[0].id,
+                    token: jwt.sign({ userId: rows[0].id },
+                        `${process.env.SECRET_TOKEN_KEY}`, { expiresIn: '24h' }
+                    )
+                });
+            })
+            .catch(error => res.status(500).json({ error }));
     });
+
 
     /*
         User.findOne({ email: req.body.email })
