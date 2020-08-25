@@ -84,6 +84,7 @@ exports.updateUser = (req, res, next) => {
 
         const username_user = rows[0].username;
         const email_user = rows[0].email;
+        const password_user = rows[0].password;
         //Change username
         if (req.body.new_username) {
             //Check if the new username is free in database
@@ -95,10 +96,10 @@ exports.updateUser = (req, res, next) => {
                 }
                 //New name = old name
                 if (username_user == req.body.new_username) {
-                    return res.status(201).json({ error: 'nom d\'utilisateur non différent!' })
+                    console.log("nom d\'utilisateur non différent!")
                 };
                 if (rows.length >= 1) { //If there is already username in database
-                    return res.status(400).json({ message: 'Nom d\'utilisateur déjà utilisé' })
+                    console.log("Nom d\'utilisateur déjà utilisé")
                 }
                 //The name is free and new name is different than the old
                 else if (username_user !== req.body.new_username) {
@@ -109,20 +110,103 @@ exports.updateUser = (req, res, next) => {
                             console.error('error connecting: ' + err.stack);
                             return res.status(400).json({ err });
                         }
-                        return res.status(201).json({ error: 'nom d\'utilisateur mis à jour!' });
+                        console.log("nom d\'utilisateur mis à jour!")
                     })
                 }
             })
-        } else {
-            console.log('pas de username rentré');
-            return res.status(401).json({ error: 'pas de user en input' });
         }
+        //Change email
+        if (req.body.new_email) {
+            //Check if the new email is free in database
+            const sql_get_mail = `SELECT * FROM users WHERE email='${req.body.new_email}'`
+            connection.query(sql_get_mail, (err, rows) => {
+                if (err) {
+                    console.error('error connecting: ' + err.stack);
+                    return res.status(500);
+                }
+                //New email = old email
+                if (email_user == req.body.new_email) {
+                    console.log("email non différent!")
+                };
+                //If there is already email in database
+                if (rows.length >= 1) {
+                    console.log("email déjà utilisé")
+                }
+                //The email is free and new email is different than the old
+                else if (email_user !== req.body.new_email) {
+                    console.log('email différent');
+                    const sql_update_email = `UPDATE users SET email="${req.body.new_email}" WHERE id="${req.body.id}"`;
+                    connection.query(sql_update_email, function(err, result) {
+                        if (err) {
+                            console.error('error connecting: ' + err.stack);
+                            return res.status(400).json({ err });
+                        }
+                        console.log("email mis à jour!")
+                    })
+                }
+            })
+        }
+        //Change password
+        if (req.body.new_password && req.body.password) {
+            if (req.body.new_password !== req.body.password) {
+                console.log('password à changer');
+                bcrypt.compare(req.body.password, password_user, function(err, result) {
+                    if (result == true) {
+                        console.log('mdp ok');
+                        bcrypt.hash(req.body.new_password, 10, function(err, hash) {
+                            if (err) {
+                                console.error('error connecting: ' + err.stack);
+                                return res.status(400).json({ error });
+                            }
+                            const sql_update_password = `UPDATE users SET password="${hash}" WHERE id="${req.body.id}"`;
+                            connection.query(sql_update_password, function(err, result) {
+                                if (err) {
+                                    console.error('error connecting: ' + err.stack);
+                                    return res.status(400).json({ error });
+                                }
+                                console.log('connected as id ' + connection.threadId);
+                                console.log('Mot de passe changé');
+                            })
+                        })
+                    } else {
+                        console.log("c'est faux");
+                    }
+                })
+            }
+        } else {
+            console.log("Merci de rentrer l'ancien et le nouveau mot de passe")
+        }
+        //Last return if no errors
+        return res.status(201).json({ message: "Données mises à jour !" });
     })
 };
 
 //GETUSER CONTROLLER
 exports.getUser = (req, res, next) => {
+    const sql_get_user = `SELECT * FROM users WHERE id='${req.body.id}'`
+    connection.query(sql_get_user, (err, rows) => {
+        if (err) {
+            console.error('error connecting: ' + err.stack);
+            return res.status(400).json({ error });
+        }
+        if (rows.length >= 0) {
+            console.log(rows);
+            const userGet = {
+                id: rows[0].id,
+                user_name: rows[0].username,
+                email: rows[0].email,
+                role: rows[0].role,
+            }
+            console.log(userGet);
 
+            return res.status(201).json({ userGet });
+
+        } else {
+            console.log("user not find");
+            return res.status(400).json({ error });
+        }
+
+    })
 };
 
 //DELETEUSER CONTROLLER
