@@ -94,17 +94,81 @@ exports.updateComment = (req, res, next) => {
 };
 //GETPOSTS CONTROLLER
 exports.getPosts = (req, res, next) => {
-
+    const sql_get_posts = `SELECT * FROM posts ORDER By date DESC, time LIMIT ${req.body.number_of_posts} OFFSET 0;`
+    connection.query(sql_get_posts, (err, rows) => {
+        if (err) {
+            console.error('error connecting: ' + err.stack);
+            return res.status(400).json({ err });
+        }
+        if (rows.length >= 1) {
+            console.log(rows);
+            console.log(rows[0].date);
+            return res.status(201).json({ rows });
+        } else {
+            console.log("Pas de posts trouvés");
+            return res.status(400).json({ err });
+        }
+    })
 };
 //GETCOMMENTS CONTROLLER
 exports.getComments = (req, res, next) => {
+    const sql_get_comments = `SELECT * FROM comments WHERE id_post="${req.body.id_post}" ORDER By date DESC, time LIMIT ${req.body.number_of_posts} OFFSET 0;`
+    connection.query(sql_get_comments, (err, rows) => {
+        if (err) {
+            console.error('error connecting: ' + err.stack);
+            return res.status(400).json({ err });
+        }
+        if (rows.length >= 1) {
+            console.log(rows);
 
+            return res.status(201).json({ rows });
+        } else {
+            console.log("Pas de commentaires trouvés");
+            return res.status(400).json({ err });
+        }
+    })
 };
 //DELETEPOST CONTROLLER
 exports.deletePost = (req, res, next) => {
-
+    const sql_get_post = `SELECT * FROM posts WHERE id='${req.body.id_post}';`
+    connection.query(sql_get_post, (err, rows) => {
+        if (err) {
+            console.error('error connecting: ' + err.stack);
+            return res.status(400).json({ err });
+        }
+        if (req.body.id_user != rows[0].id_author) {
+            return res.status(400).json({ message: "Vous n'avez pas les droits sur ce post" });
+        }
+        const sql_delete_post = `DELETE FROM posts WHERE id="${req.body.id_post}"`;
+        connection.query(sql_delete_post, (err, result) => {
+            if (err) {
+                console.error('error connecting: ' + err.stack);
+                return res.status(400).json({ err });
+            } else {
+                return res.status(201).json({ message: "Post supprimé !" });
+            }
+        })
+    })
 };
 //DELETECOMMENT CONTROLLER
 exports.deleteComment = (req, res, next) => {
-
+    const sql_get_comment = `SELECT * FROM comments WHERE id='${req.body.id_comment}';`
+    connection.query(sql_get_comment, (err, rows) => {
+        if (err) {
+            console.error('error connecting: ' + err.stack);
+            return res.status(400).json({ err });
+        }
+        if (req.body.id_user != rows[0].id_author) {
+            return res.status(400).json({ message: "Vous n'avez pas les droits sur ce commentaire" });
+        }
+        const sql_delete_comment = `DELETE FROM comments WHERE id="${req.body.id_comment}"`;
+        connection.query(sql_delete_comment, (err, result) => {
+            if (err) {
+                console.error('error connecting: ' + err.stack);
+                return res.status(400).json({ err });
+            } else {
+                return res.status(201).json({ message: "Commentaire supprimé !" });
+            }
+        })
+    })
 };
