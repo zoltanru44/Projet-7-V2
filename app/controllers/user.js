@@ -12,33 +12,49 @@ const connection = mysql.createConnection({
 });
 //SIGNUP CONTROLLER
 exports.signup = (req, res, next) => {
-    //Unique validator first
-    const sql_get_user = `SELECT * FROM users WHERE username='${req.body.username}'`
-    connection.query(sql_get_user, (err, rows) => {
+    // Check if email is already used
+    const sql_get_mail = `SELECT * FROM users WHERE email='${req.body.email}'`
+
+    connection.query(sql_get_mail, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
             return res.status(500);
         }
-        if (rows.length >= 1) { //If there is already username in database
-            return res.status(400).json({ message: 'Nom d\'utilisateur déjà utilisé' })
+        //If there is already email in database
+        if (rows.length >= 1) {
+            console.log(rows);
+            console.log("email déjà utilisé " + rows.length + " fois")
+            return res.status(500).json({ message: 'Email déjà utilisé !' });
         } else {
-            bcrypt.hash(req.body.password, 10) //Hash async
-                .then(hash => {
-                    console.log(req.body.username + " " + req.body.email + " " + hash);
-                    //Creation of the sql instructions
-                    const sql = `INSERT INTO users (username, email, password) VALUES ("${req.body.username}", "${req.body.email}", "${hash}")`;
-                    connection.query(sql, function(err, result) {
-                        if (err) {
-                            console.error('error connecting: ' + err.stack);
-                            return res.status(400).json({ error });
-                        }
-                        console.log('connected as id ' + connection.threadId);
-                        return res.status(200).json({ message: 'Utilisateur ajouté !' });
-                    });
-                })
-                .catch(error => res.status(500).json({ error }));
+            //Check is username is already used
+            const sql_get_user = `SELECT * FROM users WHERE username='${req.body.username}'`
+            connection.query(sql_get_user, (err, rows) => {
+                if (err) {
+                    console.error('error connecting: ' + err.stack);
+                    return res.status(500);
+                }
+                if (rows.length >= 1) { //If there is already username in database
+                    return res.status(400).json({ message: 'Nom d\'utilisateur déjà utilisé' })
+                }
+                //If username and email are free --> create user
+                bcrypt.hash(req.body.password, 10) //Hash async
+                    .then(hash => {
+                        console.log(req.body.username + " " + req.body.email + " " + hash);
+                        //Creation of the sql instructions
+                        const sql = `INSERT INTO users (username, email, password) VALUES ("${req.body.username}", "${req.body.email}", "${hash}")`;
+                        connection.query(sql, function(err, result) {
+                            if (err) {
+                                console.error('error connecting: ' + err.stack);
+                                return res.status(400).json({ err });
+                            }
+                            console.log('connected as id ' + connection.threadId);
+                            return res.status(200).json({ message: 'Utilisateur ajouté !' });
+                        });
+                    })
+                    .catch(error => res.status(500).json({ error }));
+            });
         }
-    });
+    })
 };
 
 //LOGIN CONTROLLER
@@ -189,7 +205,7 @@ exports.getUser = (req, res, next) => {
             console.error('error connecting: ' + err.stack);
             return res.status(400).json({ error });
         }
-        if (rows.length >= 0) {
+        if (rows.length >= 1) {
             console.log(rows);
             const userGet = {
                 id: rows[0].id,
@@ -198,18 +214,46 @@ exports.getUser = (req, res, next) => {
                 role: rows[0].role,
             }
             console.log(userGet);
-
             return res.status(201).json({ userGet });
-
         } else {
             console.log("user not find");
             return res.status(400).json({ error });
         }
-
     })
 };
 
 //DELETEUSER CONTROLLER
 exports.deleteUser = (req, res, next) => {
+    const sql_get_user = `SELECT * FROM users WHERE id='${req.body.id}'`;
+    connection.query(sql_get_user, (err, rows) => {
+        if (err) {
+            console.error('error connecting: ' + err.stack);
+            return res.status(400).json({ err });
+        }
+        console.log(rows);
+        if (rows.length >= 1) {
+            console.log("prêt à supprimer " + rows[0].username);
+            bcrypt.compare(req.body.password, rows[0].password, function(err, result) {
+                if (result == true) {
+                    console.log('mdp ok');
+                    sql_delete_user = `DELETE FROM users WHERE id="${req.body.id}"`;
+                    connection.query(sql_delete_user, (err, result) => {
+                        if (err) {
+                            console.error('error connecting: ' + err.stack);
+                            return res.status(400).json({ err });
+                        }
+                        console.log(result);
+                        return res.status(201).json({ message: "Utilisateur supprimé !" });
+                    });
+                } else {
+                    console.log("mot de passe faux")
+                    return res.status(400).json({ message: "Mauvais mot de passe" });
+                }
+            })
+        } else {
+            console.log("user not find");
+            return res.status(400).json({ err });
+        }
 
+    })
 }
