@@ -63,19 +63,19 @@ exports.login = (req, res, next) => {
     connection.query(sql_get_user, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
-            return res.status(400).json({ error });
+            return res.status(400).json({ err });
         }
         console.log(rows);
         //If no user find
         if (rows == undefined || rows.length === 0) {
-            return res.status(401).json({ error: 'Utilisateur non trouvé !' });
+            return res.status(401).json({ err: 'Utilisateur non trouvé !' });
         };
         //User find
         console.log("identifiants récupérés");
         bcrypt.compare(req.body.password, rows[0].password)
             .then(valid => {
                 if (!valid) {
-                    return res.status(401).json({ error: 'Mot de passe incorrect !' });
+                    return res.status(401).json({ err: 'Mot de passe incorrect !' });
                 }
                 return res.status(200).json({
                     userId: rows[0].id,
@@ -84,7 +84,7 @@ exports.login = (req, res, next) => {
                     )
                 });
             })
-            .catch(error => res.status(500).json({ error }));
+            .catch(error => res.status(500).json({ err }));
     });
 
 };
@@ -94,7 +94,7 @@ exports.updateUser = (req, res, next) => {
     connection.query(sql_get_user, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
-            return res.status(400).json({ error });
+            return res.status(400).json({ err });
         }
         console.log(rows);
 
