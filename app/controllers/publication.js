@@ -37,7 +37,6 @@ exports.addComment = (req, res, next) => {
 
 //UPDATEPOST CONTROLLER
 exports.updatePost = (req, res, next) => {
-
     const sql_get_post = `SELECT * FROM posts WHERE id='${req.body.id_post}'`
     connection.query(sql_get_post, (err, rows) => {
         if (err) {
@@ -48,25 +47,33 @@ exports.updatePost = (req, res, next) => {
             console.log("Nouveau texte identique au précédent");
             return res.status(401).json({ error: 'Texte identique au précédent' });
         }
-        if (req.body.id_user != rows[0].id_author) {
-            console.log("Identifiant différent de l'auteur original");
-            return res.status(401).json({ error: 'Identifiant différent de l\'auteur original' })
-        } else {
-            sql_update_post = `UPDATE posts SET text="${req.body.new_text}",modification_date="${req.body.new_publication_date}", modification_time="${req.body.new_publication_time}" WHERE id="${req.body.id_post}"`
-            connection.query(sql_update_post, function(err, result) {
-                if (err) {
-                    console.error('error connecting: ' + err.stack);
-                    return res.status(400).json({ err });
-                }
-                console.log("Publication mise à jour!")
-                return res.status(201).json({ err: 'Publication mise à jour' });
-            })
-        }
+        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.id_user}"`;
+        connection.query(sql_get_role, function(err, row) {
+            console.log(row);
+            console.log(rows);
+            if (err) {
+                console.error('error connecting: ' + err.stack);
+                return res.status(400).json({ err });
+            }
+            if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+                sql_update_post = `UPDATE posts SET text="${req.body.new_text}",modification_date="${req.body.new_publication_date}", modification_time="${req.body.new_publication_time}" WHERE id="${req.body.id_post}"`
+                connection.query(sql_update_post, function(err, result) {
+                    if (err) {
+                        console.error('error connecting: ' + err.stack);
+                        return res.status(400).json({ err });
+                    }
+                    console.log("Publication mise à jour!")
+                    return res.status(201).json({ message: 'Publication mise à jour' });
+                })
+            } else {
+                return res.status(401).json({ message: "Vous n'avez pas les droits d'écriture sur ce post" });
+            }
+        })
     })
 };
 //UPDATECOMMENT CONTROLLER
 exports.updateComment = (req, res, next) => {
-    const sql_get_comment = `SELECT * FROM comments WHERE id='${req.body.id_post}'`
+    const sql_get_comment = `SELECT * FROM comments WHERE id='${req.body.id_comment}'`
     connection.query(sql_get_comment, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
@@ -76,20 +83,28 @@ exports.updateComment = (req, res, next) => {
             console.log("Nouveau texte identique au précédent");
             return res.status(401).json({ error: 'Texte identique au précédent' });
         }
-        if (req.body.id_user != rows[0].id_author) {
-            console.log("Identifiant différent de l'auteur original");
-            return res.status(401).json({ error: 'Identifiant différent de l\'auteur original' })
-        } else {
-            sql_update_comment = `UPDATE comments SET text="${req.body.new_text}",modification_date="${req.body.new_publication_date}", modification_time="${req.body.new_publication_time}" WHERE id="${req.body.id_post}"`
-            connection.query(sql_update_comment, function(err, result) {
-                if (err) {
-                    console.error('error connecting: ' + err.stack);
-                    return res.status(400).json({ err });
-                }
-                console.log("Commentaire mis à jour!")
-                return res.status(201).json({ err: 'Commentaire mis à jour' });
-            })
-        }
+        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.id_user}"`;
+        connection.query(sql_get_role, function(err, row) {
+            console.log(row);
+            console.log(rows);
+            if (err) {
+                console.error('error connecting: ' + err.stack);
+                return res.status(400).json({ err });
+            }
+            if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+                sql_update_comment = `UPDATE comments SET text="${req.body.new_text}",modification_date="${req.body.new_publication_date}", modification_time="${req.body.new_publication_time}" WHERE id="${req.body.id_comment}"`
+                connection.query(sql_update_comment, function(err, result) {
+                    if (err) {
+                        console.error('error connecting: ' + err.stack);
+                        return res.status(400).json({ err });
+                    }
+                    console.log("Commentaire mise à jour!")
+                    return res.status(201).json({ message: 'Commentaire mise à jour' });
+                })
+            } else {
+                return res.status(401).json({ message: "Vous n'avez pas les droits d'écriture sur ce commentaire" });
+            }
+        })
     })
 };
 //GETPOSTS CONTROLLER
