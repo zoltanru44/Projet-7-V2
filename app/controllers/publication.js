@@ -145,27 +145,37 @@ exports.getComments = (req, res, next) => {
 };
 //DELETEPOST CONTROLLER
 exports.deletePost = (req, res, next) => {
-    const sql_get_post = `SELECT * FROM posts WHERE id='${req.body.id_post}';`
-    connection.query(sql_get_post, (err, rows) => {
-        if (err) {
-            console.error('error connecting: ' + err.stack);
-            return res.status(400).json({ err });
-        }
-        if (req.body.id_user != rows[0].id_author) {
-            return res.status(400).json({ message: "Vous n'avez pas les droits sur ce post" });
-        }
-        const sql_delete_post = `DELETE FROM posts WHERE id="${req.body.id_post}"`;
-        connection.query(sql_delete_post, (err, result) => {
+        const sql_get_post = `SELECT * FROM posts WHERE id='${req.body.id_post}';`
+        connection.query(sql_get_post, (err, rows) => {
             if (err) {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
-            } else {
-                return res.status(201).json({ message: "Post supprimé !" });
             }
+            sql_get_role = `SELECT role FROM users WHERE id ="${req.body.id_user}"`;
+            connection.query(sql_get_role, function(err, row) {
+                console.log(row);
+                console.log(rows);
+                if (err) {
+                    console.error('error connecting: ' + err.stack);
+                    return res.status(400).json({ err });
+                }
+                if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+                    const sql_delete_post = `DELETE FROM posts WHERE id="${req.body.id_post}"`;
+                    connection.query(sql_delete_post, (err, result) => {
+                        if (err) {
+                            console.error('error connecting: ' + err.stack);
+                            return res.status(400).json({ err });
+                        } else {
+                            return res.status(201).json({ message: "Post supprimé !" });
+                        }
+                    })
+                } else {
+                    return res.status(400).json({ message: "Vous n'avez pas les droits sur ce post" });
+                }
+            })
         })
-    })
-};
-//DELETECOMMENT CONTROLLER
+    }
+    //DELETECOMMENT CONTROLLER
 exports.deleteComment = (req, res, next) => {
     const sql_get_comment = `SELECT * FROM comments WHERE id='${req.body.id_comment}';`
     connection.query(sql_get_comment, (err, rows) => {
@@ -173,16 +183,26 @@ exports.deleteComment = (req, res, next) => {
             console.error('error connecting: ' + err.stack);
             return res.status(400).json({ err });
         }
-        if (req.body.id_user != rows[0].id_author) {
-            return res.status(400).json({ message: "Vous n'avez pas les droits sur ce commentaire" });
-        }
-        const sql_delete_comment = `DELETE FROM comments WHERE id="${req.body.id_comment}"`;
-        connection.query(sql_delete_comment, (err, result) => {
+        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.id_user}"`;
+        connection.query(sql_get_role, function(err, row) {
+            console.log(row);
+            console.log(rows);
             if (err) {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
+            }
+            if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+                const sql_delete_comment = `DELETE FROM comments WHERE id="${req.body.id_comment}"`;
+                connection.query(sql_delete_comment, (err, result) => {
+                    if (err) {
+                        console.error('error connecting: ' + err.stack);
+                        return res.status(400).json({ err });
+                    } else {
+                        return res.status(201).json({ message: "Commentaire supprimé !" });
+                    }
+                })
             } else {
-                return res.status(201).json({ message: "Commentaire supprimé !" });
+                return res.status(400).json({ message: "Vous n'avez pas les droits sur ce commentaire" });
             }
         })
     })
