@@ -1,19 +1,13 @@
-<template >
-    <div class="signup">
-        <img alt="logo-groupomania" src="../assets/icon-above-font.png" class="logo_groupo">
+<template>
+    <div class="login">
+         <img alt="logo-groupomania" src="../assets/icon-above-font.png" class="logo_groupo">
         <h1>Bienvenue sur GroupoNetwork !</h1>
-        <h2>Avant de pouvoir partager avec vos collègues, merci de créer un compte.</h2>
-        <v-form  class="signup__form" id="signup__form"
+        <h2>Avant de pouvoir partager avec vos collègues, merci de vous connecter.</h2>
+        <v-form  class="login__form" id="login__form"
         ref="form"
         v-model="valid"
         lazy-validation>
         <v-container>
-        <v-text-field
-          v-model="user.email"
-          :rules="emailRules"
-          label="Email"
-          required></v-text-field>
-
         <v-text-field
           v-model="user.username"
           :rules="usernameRules"
@@ -34,46 +28,20 @@
     >
       Validate
     </v-btn>
-    <!--Snackbar-->
-    
-
-    <v-snackbar
-      v-model="snackbar" 
-    >
-      {{ text }}
-
-        <template v-slot:action="{ attrs }">
-        <v-btn
-          color="red"
-          text
-          v-bind="attrs"
-          @click="snackbar = false"
-        >
-          Close
-        </v-btn>
-      </template>
-
-    </v-snackbar>
         </v-container>
         </v-form>
     </div>
 </template>
 
 <script>
-import User from "../models/user";
+import User from "../models/user_login";
 const axios = require('axios');
 export default {
-    name:"SignUp",
+    name:"Login",
     data() {
       return {
-      user: new User("","",""),
+      user: new User("",""),
       valid: false,
-      snackbar: false,
-      text: "essai snackbar",
-      emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
-      ],
       usernameRules: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
@@ -82,7 +50,6 @@ export default {
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
       ],
-
     }
       }
       ,
@@ -92,10 +59,9 @@ export default {
         
         axios({
           method: 'post',
-          url:'http://localhost:3000/api/auth/signup',
+          url:'http://localhost:3000/api/auth/login',
           data:{
             username: this.user.username,
-            email:this.user.email,
             password: this.user.password,
           }
         })
@@ -103,8 +69,15 @@ export default {
           console.log(response);
           console.log(response.status);
           if (response.status == 201) {
-            console.log("utilisateur créé");
-            return {message:"Utilisateur crée"}
+            console.log(`Vous êtes connecté sous le nom de ${response.data.username}`);
+            let user= {
+                userName : response.data.username,
+                user_id : response.data.username,
+                token : response.data.token
+            }
+            console.log(user);
+            localStorage.setItem("user", user);
+            return {message:`Vous êtes connecté sous le nom de ${response.data.username}`}
           }
         })
         .catch(function(error){
@@ -123,7 +96,7 @@ export default {
 .logo_groupo{
     width: 300px;
 }
-.signup__form{
+.login__form{
     width:30%;
     margin:auto;
     &__group{

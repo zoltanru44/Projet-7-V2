@@ -24,17 +24,17 @@ exports.signup = (req, res, next) => {
         if (rows.length >= 1) {
             console.log(rows);
             console.log("email déjà utilisé " + rows.length + " fois")
-            return res.status(500).json({ message: 'Email déjà utilisé !' });
+            return res.status(200).json({ message: 'Email déjà utilisé !' });
         } else {
             //Check is username is already used
             const sql_get_user = `SELECT * FROM users WHERE username='${req.body.username}'`
             connection.query(sql_get_user, (err, rows) => {
                 if (err) {
                     console.error('error connecting: ' + err.stack);
-                    return res.status(500);
+                    return res.status(500).json({ message: 'Problème de server' });
                 }
                 if (rows.length >= 1) { //If there is already username in database
-                    return res.status(400).json({ message: 'Nom d\'utilisateur déjà utilisé' })
+                    return res.status(200).json({ message: 'Nom d\'utilisateur déjà utilisé' })
                 }
                 //If username and email are free --> create user
                 bcrypt.hash(req.body.password, 10) //Hash async
@@ -45,10 +45,10 @@ exports.signup = (req, res, next) => {
                         connection.query(sql, function(err, result) {
                             if (err) {
                                 console.error('error connecting: ' + err.stack);
-                                return res.status(400).json({ err });
+                                return res.status(500).json({ err });
                             }
                             console.log('connected as id ' + connection.threadId);
-                            return res.status(200).json({ message: 'Utilisateur ajouté !' });
+                            return res.status(201).json({ message: 'Utilisateur ajouté !' });
                         });
                     })
                     .catch(error => res.status(500).json({ error }));
@@ -63,7 +63,7 @@ exports.login = (req, res, next) => {
     connection.query(sql_get_user, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
-            return res.status(400).json({ err });
+            return res.status(500).json({ err });
         }
         console.log(rows);
         //If no user find
@@ -77,8 +77,9 @@ exports.login = (req, res, next) => {
                 if (!valid) {
                     return res.status(401).json({ err: 'Mot de passe incorrect !' });
                 }
-                return res.status(200).json({
+                return res.status(201).json({
                     userId: rows[0].id,
+                    username: rows[0].username,
                     token: jwt.sign({ userId: rows[0].id },
                         `${process.env.SECRET_TOKEN_KEY}`, { expiresIn: '24h' }
                     )
