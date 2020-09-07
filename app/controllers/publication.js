@@ -109,7 +109,7 @@ exports.updateComment = (req, res, next) => {
 };
 //GETPOSTS CONTROLLER
 exports.getPosts = (req, res, next) => {
-    const sql_get_posts = `SELECT * FROM posts ORDER By date DESC, time LIMIT ${req.body.number_of_posts} OFFSET 0;`
+    const sql_get_posts = `SELECT * FROM posts ORDER By date DESC, time LIMIT ${req.query.number_of_posts} OFFSET 0;`
     connection.query(sql_get_posts, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
