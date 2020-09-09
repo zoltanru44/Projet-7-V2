@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Signup from '../views/Signup.vue'
 import Login from '../views/Login.vue'
 import Blackboard from '../views/Blackboard.vue'
+import Profile from '../views/Profile.vue'
 
 Vue.use(VueRouter)
 
@@ -21,6 +22,12 @@ const routes = [{
         path: '/blackboard',
         name: 'Blackboard',
         component: Blackboard
+
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: Profile
 
     },
     {

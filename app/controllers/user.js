@@ -80,6 +80,7 @@ exports.login = (req, res, next) => {
                 return res.status(201).json({
                     userId: rows[0].id,
                     username: rows[0].username,
+                    email: rows[0].email,
                     token: jwt.sign({ userId: rows[0].id },
                         `${process.env.SECRET_TOKEN_KEY}`, { expiresIn: '24h' }
                     )
@@ -200,7 +201,7 @@ exports.updateUser = (req, res, next) => {
 
 //GETUSER CONTROLLER
 exports.getUser = (req, res, next) => {
-    const sql_get_user = `SELECT * FROM users WHERE id='${req.body.id}'`
+    const sql_get_user = `SELECT * FROM users WHERE id='${req.query.id}'`
     connection.query(sql_get_user, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);

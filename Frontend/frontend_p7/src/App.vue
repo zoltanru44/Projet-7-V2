@@ -5,6 +5,7 @@
       <router-link to="/">Sign Up</router-link> |
       <router-link to="/login">Login</router-link> |
       <router-link to="/blackboard">Blackboard</router-link> |
+      <router-link to="/profile">Mon profil</router-link> |
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>

@@ -72,11 +72,14 @@ export default {
             console.log(`Vous êtes connecté sous le nom de ${response.data.username}`);
             let user= {
                 userName : response.data.username,
-                user_id : response.data.username,
+                user_id : response.data.userId,
+                email : response.data.email,
                 token : response.data.token
             }
             console.log(user);
-            localStorage.setItem("user", user);
+            let user_string = JSON.stringify(user);
+            localStorage.setItem("user", user_string);
+            console.log(localStorage.getItem("user"));
             return {message:`Vous êtes connecté sous le nom de ${response.data.username}`}
           }
         })
