@@ -45,7 +45,6 @@
         <template v-slot:action="{ attrs }">
         <v-btn
           color="red"
-          text
           v-bind="attrs"
           @click="snackbar = false"
         >
@@ -54,6 +53,8 @@
       </template>
 
     </v-snackbar>
+
+    <BtnSnackbar buttonText="Valider le formulaire" snackbarText="snackbar ouvert" ClrSnack="success" @CustomEventName="validate"/>
         </v-container>
         </v-form>
     </div>
@@ -61,6 +62,7 @@
 
 <script>
 import User from "../models/user";
+import BtnSnackbar from "../components/snackbar";
 const axios = require('axios');
 export default {
     name:"SignUp",
@@ -69,6 +71,7 @@ export default {
       user: new User("","",""),
       valid: false,
       snackbar: false,
+      error:"",
       text: "essai snackbar",
       emailRules: [
         v => !!v || 'E-mail is required',
@@ -84,12 +87,13 @@ export default {
       ],
 
     }
-      }
-      ,
+      },
+      components:{
+        BtnSnackbar,
+      },
     methods: {
         validate: function () {
         console.log(this.user);
-        
         axios({
           method: 'post',
           url:'http://localhost:3000/api/auth/signup',
@@ -102,9 +106,14 @@ export default {
         .then(function(response){
           console.log(response);
           console.log(response.status);
-          if (response.status == 201) {
+          if (response.status === 201) {
             console.log("utilisateur créé");
             return {message:"Utilisateur crée"}
+          }
+          else {
+            this.error = response.data.message;
+            console.log(this.error);
+            return {}
           }
         })
         .catch(function(error){
