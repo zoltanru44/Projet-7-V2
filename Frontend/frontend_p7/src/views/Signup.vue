@@ -6,7 +6,7 @@
         <v-form  class="signup__form" id="signup__form"
         ref="form"
         v-model="valid"
-        lazy-validation>
+        >
         <v-container>
         <v-text-field
           v-model="user.email"
@@ -26,104 +26,108 @@
           label="Mot de passe"
           required></v-text-field>
 
-  <v-btn
-      :disabled="!valid"
+ 
+    <!--Btn + Snackbar-->
+   <div class="text-center" id="btn_snackbar">
+    <v-btn
+      :disabled= !valid
       color="success"
       class="mr-4"
-      @click="validate"
+      @click="validate_async"
     >
-      Validate
+      Valider votre inscription
     </v-btn>
-    <!--Snackbar-->
-    
 
     <v-snackbar
-      v-model="snackbar" 
+      v-model="snackbar"
+      v-bind:color=ClrSnack
+      :multi-line="multiLine"
     >
-      {{ text }}
+      {{resultMessage}} 
 
-        <template v-slot:action="{ attrs }">
+      <template v-slot:action="{ attrs }">
         <v-btn
-          color="red"
           v-bind="attrs"
           @click="snackbar = false"
         >
-          Close
+          Fermer
         </v-btn>
       </template>
-
     </v-snackbar>
+  </div>
 
-    <BtnSnackbar buttonText="Valider le formulaire" snackbarText="snackbar ouvert" ClrSnack="success" @CustomEventName="validate"/>
         </v-container>
         </v-form>
     </div>
 </template>
 
 <script>
-import User from "../models/user";
-import BtnSnackbar from "../components/snackbar";
+//import User from "../models/user";
+
 const axios = require('axios');
 export default {
     name:"SignUp",
     data() {
       return {
-      user: new User("","",""),
+      user: {
+        username: '',
+        email:'',
+        password:''},
       valid: false,
       snackbar: false,
-      error:"",
-      text: "essai snackbar",
+      multiLine: true,
+      ClrSnack:"error",
+      resultMessage:"",
+      text: "",
+      lazy:false,
       emailRules: [
         v => !!v || 'E-mail is required',
         v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
       ],
+      
       usernameRules: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
       ],
+      
       passwordRules: [
-        v => !!v || 'Name is required',
-        v => (v && v.length <= 10) || 'Name must be less than 10 characters',
+        v => !!v || 'Password is required',
+        v => (v && v.length <= 10) || 'Password must be less than 10 characters',
       ],
 
     }
       },
       components:{
-        BtnSnackbar,
+        
       },
+      
     methods: {
-        validate: function () {
-        console.log(this.user);
-        axios({
-          method: 'post',
-          url:'http://localhost:3000/api/auth/signup',
-          data:{
-            username: this.user.username,
+      validate_async () {
+        const newUser = {
+          username: this.user.username,
             email:this.user.email,
             password: this.user.password,
+        }
+        const sendPostRequest = async () => {
+          try {
+            const resp = await axios.post('http://localhost:3000/api/auth/signup', newUser);
+            this.resultMessage=resp.data.message
+            if (resp.status == 201) {
+              this.ClrSnack = "success";
+            }
+            if (resp.status ==200) {
+              this.ClrSnack = "error";
+            }
+            console.log(resp.data.message);
+            console.log(this.resultMessage);
           }
-        })
-        .then(function(response){
-          console.log(response);
-          console.log(response.status);
-          if (response.status === 201) {
-            console.log("utilisateur créé");
-            return {message:"Utilisateur crée"}
+          catch (err){
+            console.log(err);
           }
-          else {
-            this.error = response.data.message;
-            console.log(this.error);
-            return {}
-          }
-        })
-        .catch(function(error){
-          console.log(error);
-          console.log(error.status);
-          console.log(error.data.message);
-         //TO DO : Afficher la snackbar quand il y a une erreur du server
-          return {error: error}
-        })
-      },
+        }
+        sendPostRequest ();
+        this.snackbar = true;
+      }
     }
 }
 </script>

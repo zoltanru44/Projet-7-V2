@@ -5,8 +5,7 @@
         <h2>Avant de pouvoir partager avec vos collègues, merci de vous connecter.</h2>
         <v-form  class="login__form" id="login__form"
         ref="form"
-        v-model="valid"
-        lazy-validation>
+        v-model="valid">
         <v-container>
         <v-text-field
           v-model="user.username"
@@ -20,28 +19,56 @@
           label="Mot de passe"
           required></v-text-field>
 
-  <v-btn
-      :disabled="!valid"
+
+     <!--Btn + Snackbar-->
+   <div class="text-center" id="btn_snackbar">
+    <v-btn
+      :disabled= !valid
       color="success"
       class="mr-4"
-      @click="validate"
+      @click="validate_async"
     >
-      Validate
+      Connexion
     </v-btn>
+
+    <v-snackbar
+      v-model="snackbar"
+      v-bind:color=ClrSnack
+      :multi-line="multiLine"
+    >
+      {{resultMessage}} 
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Fermer
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </div>
         </v-container>
         </v-form>
     </div>
 </template>
 
 <script>
-import User from "../models/user_login";
+//import User from "../models/user_login";
 const axios = require('axios');
 export default {
     name:"Login",
     data() {
       return {
-      user: new User("",""),
+      user: {
+        username: "",
+        password: "",
+      },
       valid: false,
+      snackbar: false,
+      multiLine: true,
+      ClrSnack:"error",
+      resultMessage:"",
       usernameRules: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
@@ -91,6 +118,44 @@ export default {
           return {error: error}
         })
       },
+      validate_async () {
+        const newUser = {
+          username: this.user.username,
+          password: this.user.password,
+        }
+        const sendPostRequest = async () => {
+          try {
+            const resp = await axios.post('http://localhost:3000/api/auth/login', newUser);
+            this.resultMessage=`Vous êtes connecté sous le nom de ${resp.data.username}`
+            if (resp.status == 201) {
+              this.ClrSnack = "success";
+              console.log(`Vous êtes connecté sous le nom de ${resp.data.username}`);
+            let user= {
+                userName : resp.data.username,
+                user_id : resp.data.userId,
+                email : resp.data.email,
+                token : resp.data.token
+            }
+            console.log(user);
+            let user_string = JSON.stringify(user);
+            localStorage.setItem("user", user_string);
+            console.log(localStorage.getItem("user"));
+            return {message:`Vous êtes connecté sous le nom de ${resp.data.username}`}
+            }
+            if (resp.status ==200) {
+              this.resultMessage= resp.data.err;
+              this.ClrSnack = "error";
+            }
+            console.log(resp.data.message);
+            console.log(this.resultMessage);
+          }
+          catch (err){
+            console.log(err);
+          }
+        }
+        sendPostRequest ();
+        this.snackbar = true;
+      }
     }
 }
 </script>

@@ -13,7 +13,7 @@ const connection = mysql.createConnection({
 
 //ADDPOST CONTROLLER
 exports.addPost = (req, res, next) => {
-    const sql_add_post = `INSERT INTO posts (id_author, date, time, text) VALUES ("${req.body.id_user}","${req.body.publication_date}","${req.body.publication_time}","${req.body.text}")`;
+    const sql_add_post = `INSERT INTO posts (id_author, date, time, text, modification_date, modification_time) VALUES ("${req.body.id_user}","${req.body.publication_date}","${req.body.publication_time}","${req.body.text}","${req.body.publication_date}","${req.body.publication_time}")`;
     connection.query(sql_add_post, (err, result) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
@@ -31,7 +31,7 @@ exports.addComment = (req, res, next) => {
             console.error('error connecting: ' + err.stack);
             return res.status(400).json({ err });
         }
-        return res.status(200).json({ message: 'Publication ajoutée !' });
+        return res.status(201).json({ message: 'Publication ajoutée !' });
     })
 };
 
@@ -109,7 +109,8 @@ exports.updateComment = (req, res, next) => {
 };
 //GETPOSTS CONTROLLER
 exports.getPosts = (req, res, next) => {
-    const sql_get_posts = `SELECT * FROM posts ORDER By date DESC, time LIMIT ${req.query.number_of_posts} OFFSET 0;`
+    //Request with JOIN between users and posts
+    const sql_get_posts = `SELECT posts.id,posts.id_author,DATE_FORMAT(date,"%d/%m/%Y") as date,time,text,DATE_FORMAT(modification_date,"%d/%m/%Y") as modification_date, modification_time, username FROM posts INNER JOIN users ON posts.id_author = users.id ORDER By date DESC, time LIMIT ${req.query.number_of_posts} OFFSET 0;`
     connection.query(sql_get_posts, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
@@ -127,7 +128,7 @@ exports.getPosts = (req, res, next) => {
 };
 //GETCOMMENTS CONTROLLER
 exports.getComments = (req, res, next) => {
-    const sql_get_comments = `SELECT * FROM comments WHERE id_post="${req.body.id_post}" ORDER By date DESC, time LIMIT ${req.body.number_of_posts} OFFSET 0;`
+    const sql_get_comments = `SELECT * FROM comments WHERE id_post="${req.query.id_post}" ORDER By date DESC, time LIMIT ${req.query.number} OFFSET 0;`
     connection.query(sql_get_comments, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
@@ -135,11 +136,10 @@ exports.getComments = (req, res, next) => {
         }
         if (rows.length >= 1) {
             console.log(rows);
-
             return res.status(201).json({ rows });
         } else {
             console.log("Pas de commentaires trouvés");
-            return res.status(400).json({ err });
+            return res.status(200).json({ message: "Pas de commentaire trouvé" });
         }
     })
 };

@@ -68,14 +68,14 @@ exports.login = (req, res, next) => {
         console.log(rows);
         //If no user find
         if (rows == undefined || rows.length === 0) {
-            return res.status(401).json({ err: 'Utilisateur non trouvé !' });
+            return res.status(200).json({ err: 'Utilisateur non trouvé !' });
         };
         //User find
         console.log("identifiants récupérés");
         bcrypt.compare(req.body.password, rows[0].password)
             .then(valid => {
                 if (!valid) {
-                    return res.status(401).json({ err: 'Mot de passe incorrect !' });
+                    return res.status(200).json({ err: 'Mot de passe incorrect !' });
                 }
                 return res.status(201).json({
                     userId: rows[0].id,
