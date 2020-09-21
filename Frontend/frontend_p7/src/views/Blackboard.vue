@@ -41,9 +41,30 @@
             </v-form>
             <div class="elevation-10 rounded ma-6">
                 <div  v-for="item in posts" :key="item.id">
-                <p class="body-1">{{item.text}} </p>
-                <h3 class="text-right subtitle-2">Posté par {{item.username}} le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></h3> 
-                
+                <p class="body-1" >{{item.text}} </p>
+                <div v-if="modified_text = true">
+                    <v-textarea name="input_post" v-model="input_modified_post" value=item.text outlined></v-textarea>
+                    <v-btn text small color="primary" @click="modifyPost(item.id)">Modifier définitivement</v-btn>
+                </div>
+               
+                <v-row align="center">
+                    <v-col cols="12" sm="2">
+                        <div class="my-2">
+                            <v-btn v-show="item.id_author == user.id" text small color="primary" @click="modified_text=true">Modifier</v-btn>
+                        </div>
+                    </v-col>
+                    <v-col cols="12" sm="2">
+                        <div class="my-2">
+                            <v-btn v-show="item.id_author == user.id" text small color="error">Supprimer</v-btn>
+                        </div>
+                    </v-col>
+                    <v-col cols="12" sm="8">
+                        <div class="my-2 mr-2">
+                            <h3 class="text-right subtitle-2">Posté par {{item.username}} le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></h3> 
+                        </div>
+                        
+                    </v-col>
+                </v-row>
                  <div v-if="item.comments ==! undefined">
                      <div v-for="items in item.comments" :key="items.id">
                          <p >
@@ -74,6 +95,8 @@ export default {
             valid: false,
             snackbar: false,
             multiLine: true,
+            modified_text: false,
+            input_modified_post: "",
             ClrSnack:"error",
             user: new User("email","username","id","","",""),
             newPost :"",
@@ -294,6 +317,41 @@ export default {
             this.user.id = `${localUser.user_id}`;
             console.log(localUser);
         },
+        modifyPost (id_post) {
+        let date = new Date();// New date
+        const newPost = {//body request
+          id_user: this.user.id,
+          id_post: `${id_post}`,
+          new_text: this.input_modified_post,
+          new_publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
+          new_publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
+        };
+      
+        console.log(newPost)
+        //Axios request
+        const sendPostRequest = async () => {
+            try {
+                const resp = await axios.put('http://localhost:3000/api/publication/updatePost', newPost);
+                if (resp.status == 201) {
+                    this.resultMessage=`Nouveau text posté !`;
+                    this.ClrSnack = "success";
+                    console.log(`nouveau post ajouté`);
+                    console.log(resp.data.message);
+                    console.log(this.resultMessage);
+                }else {
+                    this.resultMessage="Le message n'a pas pu être posté, merci de recommencer ultérieurement.";
+                }
+            }
+            catch (err){
+                this.resultMessage="Le message n'a pas pu être posté, merci de recommencer ultérieurement.";
+                console.log(err);
+            }
+        }
+        sendPostRequest ();
+        this.snackbar = true;
+        this.getAllPosts ();
+        this.loadPosts ();
+        }
     }
 }
 </script>
