@@ -81,7 +81,7 @@ export default {
       }
       ,
     methods: {
-        validate: function () {
+        /*validate: function () {
         console.log(this.user);
         
         axios({
@@ -117,7 +117,7 @@ export default {
          //TO DO : Afficher la snackbar quand il y a une erreur du server
           return {error: error}
         })
-      },
+      },*/
       validate_async () {
         const newUser = {
           username: this.user.username,
