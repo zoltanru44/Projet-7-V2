@@ -109,51 +109,95 @@ exports.updateComment = (req, res, next) => {
 };
 //GETPOSTS CONTROLLER
 exports.getPosts = (req, res, next) => {
-    class Post {
-        constructor(date, time, id, id_author, username, modification_date, modification_time, text, comments) {
-            this.date = date;
-            this.time = time;
-            this.id = id;
-            this.id_author = id_author;
-            this.username = username;
-            this.modification_date = modification_date;
-            this.modification_time = modification_time;
-            this.text = text;
-            this.comments = comments;
+        class Post {
+            constructor(date, time, id, id_author, username, modification_date, modification_time, text, comments) {
+                this.date = date;
+                this.time = time;
+                this.id = id;
+                this.id_author = id_author;
+                this.username = username;
+                this.modification_date = modification_date;
+                this.modification_time = modification_time;
+                this.text = text;
+                this.comments = comments;
+            }
         }
-    }
-    class Comment {
-        constructor(date, time, id, id_author, id_post, username, modification_date, modification_time, text) {
-            this.date = date;
-            this.time = time;
-            this.id = id;
-            this.id_post = id_post;
-            this.id_author = id_author;
-            this.username = username;
-            this.modification_date = modification_date;
-            this.modification_time = modification_time;
-            this.text = text;
+        class Comment {
+            constructor(date, time, id, id_author, id_post, username, modification_date, modification_time, text) {
+                this.date = date;
+                this.time = time;
+                this.id = id;
+                this.id_post = id_post;
+                this.id_author = id_author;
+                this.username = username;
+                this.modification_date = modification_date;
+                this.modification_time = modification_time;
+                this.text = text;
+            }
         }
-    }
-    //Request with JOIN between users and posts
-    const sql_get_posts = `SELECT posts.id,posts.id_author,DATE_FORMAT(date,"%Y/%m/%d") as date,time,text,DATE_FORMAT(modification_date,"%Y/%m/%d") as modification_date, modification_time, username 
+        //Request with JOIN between users and posts
+        const sql_get_posts = `SELECT posts.id,posts.id_author,DATE_FORMAT(date,"%Y/%m/%d") as date,time,text,DATE_FORMAT(modification_date,"%Y/%m/%d") as modification_date, modification_time, username 
     FROM posts 
     LEFT JOIN users 
     ON posts.id_author = users.id 
     ORDER By date DESC, time DESC
     LIMIT ${req.query.number_of_posts} 
     OFFSET 0;`
-    connection.query(sql_get_posts, (err, rows) => {
-        if (err) {
-            console.error('error connecting: ' + err.stack);
-            return res.status(400).json({ err });
-        }
-        if (rows.length >= 1) {
-            //console.log(rows);
-            console.log(rows[0].date);
-            let allPosts = [];
-            //Boucle récup comm post_id= item.id / Let item from rows
-            for (let item of rows) {
+        let allPosts;
+        let functionToGetPosts = function() {
+            return new Promise(resolve => {
+                connection.query(sql_get_posts, (err, rows) => {
+                    if (err) {
+                        console.error('error connecting: ' + err.stack);
+                        return res.status(400).json({ err });
+                    }
+                    if (rows.length >= 1) {
+                        //console.log(rows);
+                        console.log(rows[0].date);
+                        allPosts = rows;
+                        //Boucle récup comm post_id= item.id / Let item from rows
+
+                        //Return rows
+                        resolve(allPosts);
+                    } else {
+                        console.log("Pas de posts trouvés");
+                        return res.status(400).json({ err });
+                    }
+                })
+            })
+        };
+        //function to get comments from one post
+        let functionToGetCommentsFromPost = function(item) {
+                return new Promise(resolve => {
+                    const commentArray = []
+                    const sql_get_comments =
+                        `SELECT id, id_author, id_post, DATE_FORMAT(date,"%Y/%m/%d") as date,time,text,DATE_FORMAT(modification_date,"%Y/%m/%d") as modification_date, modification_time
+                FROM comments
+                WHERE comments.id_post= ${item.id}
+                ORDER By date DESC, time`
+                    connection.query(sql_get_comments, (err, rows) => {
+                        if (err) {
+                            console.error('error connecting: ' + err.stack);
+                            return res.status(400).json({ err });
+                        }
+                        if (rows.length >= 1) {
+                            console.log(rows.length + "commentaires trouvés")
+                            console.log(rows);
+                            resolve(rows)
+                        } else {
+                            console.log("Pas de commentaires trouvés");
+                            resolve([]);
+                        }
+                    })
+                })
+            }
+            //Function to get all comments from allposts
+        let functionToGetComments = async(allPosts) => {
+            let allPostsComplete = [];
+            for (let item of allPosts) {
+                let commentArray = await functionToGetCommentsFromPost(item)
+                console.log(commentArray.length + "commentaires trouvés")
+                console.log(item.id);
                 let post = new Post(
                     this.date = item.date,
                     this.time = item.time,
@@ -163,61 +207,28 @@ exports.getPosts = (req, res, next) => {
                     this.modification_date = item.modification_date,
                     this.modification_time = item.modification_time,
                     this.text = item.text,
-                    this.comments = [],
-
+                    this.comments = commentArray,
                 );
-                /*
-                const sql_get_comments =
-                    `SELECT comments.id, comments.id_author, comments.id_post, DATE_FORMAT(date,"%d/%m/%Y") as date,time,text,DATE_FORMAT(modification_date,"%d/%m/%Y") as modification_date, modification_time
-                        FROM comments
-                        WHERE comments.id_post= ${post.id}
-                        ORDER By date DESC, time
-                        LIMIT 5
-                        OFFSET 0;`
+                allPostsComplete.push(post);
 
-                connection.query(sql_get_comments, (err, rows, res) => {
-                        if (err) {
-                            console.error('error connecting: ' + err.stack);
-                            return res.status(400).json({ err });
-                        }
-                        if (rows.length >= 1) {
-                            console.log(rows);
-                            const commentArray = [];
-                            for (let item of rows) {
-                                let newComment = new Comment;
-                                this.date = item.date;
-                                this.time = item.time;
-                                this.id = item.id;
-                                this.id_post = item.id_post;
-                                this.id_author = item.id_author;
-                                this.username = item.username;
-                                this.modification_date = item.modification_date;
-                                this.modification_time = item.modification_time;
-                                this.text = item.text;
-                                commentArray.push(newComment);
-                            }
-                            //console.log(commentArray);
-                            console.log(post.id);
-                            return res.status(201).json({ commentArray })
-                        } else {
-                            console.log("Pas de commentaires trouvés");
-                        }
 
-                    })
-                    //console.log(post)
-                    // post.comments = commentArray;
-                console.log("ici");
-                console.log(post.comments);*/
-                allPosts.push(post);
+                //await Promise.all(allPromises);
             }
-            return res.status(201).json({ allPosts });
-        } else {
-            console.log("Pas de posts trouvés");
-            return res.status(400).json({ err });
+            return allPostsComplete;
         }
-    })
-};
-//GETCOMMENTS CONTROLLER
+        let functionToGetPostsComments = async function() {
+            const allPostsGet = await functionToGetPosts();
+            const allPostsCommentsGet = await functionToGetComments(allPostsGet)
+            console.log("Longeur allPostsGet");
+            console.log(allPostsGet.length);
+            console.log("Longeur allPostsCommentGet");
+            console.log(allPostsCommentsGet.length);
+            return res.status(201).json({ allPostsCommentsGet });
+        };
+        functionToGetPostsComments();
+
+    }
+    //GETCOMMENTS CONTROLLER
 exports.getComments = (req, res, next) => {
     class Comment {
         constructor(date, time, id, id_author, id_post, username, modification_date, modification_time, text) {
@@ -271,15 +282,19 @@ exports.getComments = (req, res, next) => {
         }
     })
 };
+
+
+
+
 //DELETEPOST CONTROLLER
 exports.deletePost = (req, res, next) => {
-        const sql_get_post = `SELECT * FROM posts WHERE id='${req.body.id_post}';`
+        const sql_get_post = `SELECT * FROM posts WHERE id='${req.query.id_post}';`
         connection.query(sql_get_post, (err, rows) => {
             if (err) {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
             }
-            sql_get_role = `SELECT role FROM users WHERE id ="${req.body.id_user}"`;
+            sql_get_role = `SELECT role FROM users WHERE id ="${req.query.id_user}"`;
             connection.query(sql_get_role, function(err, row) {
                 console.log(row);
                 console.log(rows);
@@ -287,8 +302,8 @@ exports.deletePost = (req, res, next) => {
                     console.error('error connecting: ' + err.stack);
                     return res.status(400).json({ err });
                 }
-                if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
-                    const sql_delete_post = `DELETE FROM posts WHERE id="${req.body.id_post}"`;
+                if ((req.query.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+                    const sql_delete_post = `DELETE FROM posts WHERE id="${req.query.id_post}"`;
                     connection.query(sql_delete_post, (err, result) => {
                         if (err) {
                             console.error('error connecting: ' + err.stack);

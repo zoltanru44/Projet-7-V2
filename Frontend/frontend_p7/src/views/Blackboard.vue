@@ -42,40 +42,89 @@
             <div class="elevation-10 rounded ma-6">
                 <div  v-for="item in posts" :key="item.id">
                 <p class="body-1" >{{item.text}} </p>
-                <div v-if="modified_text = true">
-                    <v-textarea name="input_post" v-model="input_modified_post" value=item.text outlined></v-textarea>
-                    <v-btn text small color="primary" @click="modifyPost(item.id)">Modifier définitivement</v-btn>
-                </div>
-               
+                
+               <!-- BTNs "modifier", "supprimer", "commenter" and post informations -->
                 <v-row align="center">
                     <v-col cols="12" sm="2">
                         <div class="my-2">
-                            <v-btn v-show="item.id_author == user.id" text small color="primary" @click="modified_text=true">Modifier</v-btn>
+                            <v-btn v-show="item.id_author == user.id" text small color="primary" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">Modifier</v-btn>
                         </div>
                     </v-col>
                     <v-col cols="12" sm="2">
                         <div class="my-2">
-                            <v-btn v-show="item.id_author == user.id" text small color="error">Supprimer</v-btn>
+                            <v-btn v-show="item.id_author == user.id" text small color="error" @click.stop="dialog = true, IDpostToDelete = item.id">Supprimer</v-btn>
                         </div>
                     </v-col>
-                    <v-col cols="12" sm="8">
+                    <v-col cols="12" sm="2">
+                        <div class="my-2">
+                            <v-btn text small color="green" @click="dialog_comment = true, IDpostToComment = item.id">Commenter</v-btn>
+                        </div>
+                    </v-col>
+                    <v-col cols="12" sm="6">
                         <div class="my-2 mr-2">
                             <h3 class="text-right subtitle-2">Posté par {{item.username}} le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></h3> 
                         </div>
-                        
                     </v-col>
+                    
                 </v-row>
                  <div v-if="item.comments ==! undefined">
                      <div v-for="items in item.comments" :key="items.id">
                          <p >
                              {{items.text}}
                          </p>
-
                      </div>
                  </div>
 
                  <v-divider key="index"></v-divider>
                 </div>
+                <!--Dialog box for modify post-->
+                    <v-dialog v-model="dialog_modif" max-width="400">
+                        <v-card>
+                            <v-card-title class="headline">Modification d'un post</v-card-title>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-text-field label="Voulez-vous modifier ce post ?" v-model="textToModify" required></v-text-field>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="green darken-1" text @click="modifyPost()">Oui</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog_modif = false">Non</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                <!--Dialog box for delete post-->
+                    <v-dialog v-model="dialog" max-width="290">
+                        <v-card>
+                            <v-card-title class="headline">Suppression d'un post</v-card-title>
+                            <v-card-text>Voulez-vous définitivement supprimer ce post ?</v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="green darken-1" text @click="deletePost()">Oui</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog = false">Non</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                    <!--Dialog box for comment post-->
+                    <v-dialog v-model="dialog_comment" max-width="600">
+                        <v-card>
+                            <v-card-title class="headline">Ajouter un commentaire</v-card-title>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-text-field label="Ecrivez votre commentaire" v-model="commentToAdd" required></v-text-field>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="green darken-1" text @click="commentPost()">Commenter</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog_comment = false">Finalement je n'ai rien à ajouter</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
             </div>
         </div>
     </div>
@@ -96,6 +145,14 @@ export default {
             snackbar: false,
             multiLine: true,
             modified_text: false,
+            dialog: false,
+            dialog_modif: false,
+            dialog_comment: false,
+            IDpostToDelete: "",
+            IDpostToModify:"",
+            IDpostToComment:"",
+            commentToAdd:"",
+            textToModify:"",
             input_modified_post: "",
             ClrSnack:"error",
             user: new User("email","username","id","","",""),
@@ -124,10 +181,11 @@ export default {
                          params: {
                             number_of_posts: 5
                         }
-                    })
+                    })//Utiliser.then
                     if (resp.status == 201) {
                         //console.log(resp.data.allPosts);
                         localStorage.removeItem("posts");
+                        console.log(resp.data);
                         for (let item of resp.data.allPosts) {
                         let newPost = new Post (
                             this.date = item.date,
@@ -161,7 +219,7 @@ export default {
                     console.log(err);
                 }
             }
-            const getcommentsRequest = async () => {
+            /*const getcommentsRequest = async () => {
                 try {
                     let posts = JSON.parse(localStorage.getItem("posts"));
                     console.log(posts);
@@ -206,10 +264,10 @@ export default {
                 catch (err){
                     console.log(err);
                 }
-            }
+            }*/
 
             getPostRequest();
-           getcommentsRequest();
+           //getcommentsRequest();
            
         },
         /*getAllPostsPromise () {
@@ -317,12 +375,12 @@ export default {
             this.user.id = `${localUser.user_id}`;
             console.log(localUser);
         },
-        modifyPost (id_post) {
+        modifyPost () {
         let date = new Date();// New date
         const newPost = {//body request
           id_user: this.user.id,
-          id_post: `${id_post}`,
-          new_text: this.input_modified_post,
+          id_post: this.IDpostToModify,
+          new_text: this.textToModify,
           new_publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
           new_publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
         };
@@ -348,10 +406,76 @@ export default {
             }
         }
         sendPostRequest ();
+        this.dialog_modif = false;
         this.snackbar = true;
         this.getAllPosts ();
         this.loadPosts ();
+        },
+        deletePost () {
+        //Axios request
+        const sendPostRequest = async () => {
+            try {
+                const resp = await axios.delete('http://localhost:3000/api/publication/deletePost', {
+                    params: {
+                        id_user: this.user.id,
+                        id_post: this.IDpostToDelete,
+                    }
+                });
+                if (resp.status == 201) {
+                    this.resultMessage=`Post supprimé !`;
+                    this.dialog= false;
+                    this.ClrSnack = "success";
+                    console.log(`Le post a bien été supprimé`);
+                    console.log(resp.data.message);
+                    console.log(this.resultMessage);
+                }else {
+                    this.resultMessage="Le message n'a pas pu être supprimé, merci de recommencer ultérieurement.";
+                }
+            }
+            catch (err){
+                this.resultMessage="Le message n'a pas pu être supprimé, merci de recommencer ultérieurement.";
+                console.log(err);
+            }
         }
+        sendPostRequest ();
+        this.snackbar = true;
+        this.getAllPosts ();
+        this.loadPosts ();
+        },
+        commentPost () {
+        let date = new Date();// New date
+        //Axios request
+        const sendPostRequest = async () => {
+            try {
+                const resp = await axios.post('http://localhost:3000/api/publication/addComment', {
+                        id_user: this.user.id,
+                        id_post: this.IDpostToComment,
+                        text: this.commentToAdd,
+                        publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
+                        publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
+                });
+                if (resp.status == 201) {
+                    this.resultMessage=`Commentaire ajouté !`;
+                    this.dialog_comment= false;
+                    this.ClrSnack = "success";
+                    console.log(`Le commentaire à bien été ajouté`);
+                    console.log(resp.data.message);
+                    console.log(this.resultMessage);
+                }else {
+                    this.resultMessage="Le commentaire n'a pas pu être ajouté, merci de recommencer ultérieurement.";
+                }
+            }
+            catch (err){
+                this.resultMessage="Le commentaire n'a pas pu être ajouté, merci de recommencer ultérieurement.";
+                console.log(err);
+            }
+        }
+        sendPostRequest ();
+        this.snackbar = true;
+        this.getAllPosts ();
+        this.loadPosts ();
+        },
+
     }
 }
 </script>
