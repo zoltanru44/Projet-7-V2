@@ -1,9 +1,11 @@
 <template>
+
     <div class="blackboard" id="Blackboard">
         <div class="loarding" v-if="loading">
             <h1>Chargement en cours</h1>
         </div>
         <div v-if="load" class="container" id="board">
+            <!--Add new comment-->
             <v-form class="post_form elevation-10 rounded ma-6 center" ref="form" v-model="valid" >
                 <v-container >
                     <v-text-field
@@ -16,11 +18,9 @@
                       :disabled= !valid
                       color="success"
                       class="mr-4"
-                      @click="sendNewPost"
-                    >
+                      @click="sendNewPost">
                       Poster
                     </v-btn>
-
                     <v-snackbar
                       v-model="snackbar"
                       v-bind:color=ClrSnack
@@ -30,8 +30,7 @@
                       <template v-slot:action="{ attrs }">
                         <v-btn
                           v-bind="attrs"
-                          @click="snackbar = false"
-                        >
+                          @click="snackbar = false">
                           Fermer
                         </v-btn>
                       </template>
@@ -39,43 +38,63 @@
                     </div>
                 </v-container>
             </v-form>
+            <!--POSTS part-->
             <div class="elevation-10 rounded ma-6">
-                <div  v-for="item in posts" :key="item.id">
-                <p class="body-1" >{{item.text}} </p>
-                
+                <div v-for="item in posts" :key="item.id">
+                    <v-card
+                    class="mx-auto"
+                    color=deep-purple 
+                    dark
+                    max-width="600">
+                        <v-card-text class="headline font-weight-bold">"{{item.text}}"</v-card-text>
+                        <v-card-action key="item.id">
+                            <v-list-item key="item.id" class="grow">
+                                <v-list-item-content>
+                                    <v-list-item-title>{{item.username}}</v-list-item-title>
+                                </v-list-item-content>
+                                <v-row align="center" justify="end">
+                                  <v-icon class="mr-1" v-show="item.id_author == user.id" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
+                                  <span class="subheading"> </span>
+                                  <v-icon class="mr-1" v-show="item.id_author == user.id" @click.stop="dialog = true, IDpostToDelete = item.id">mdi-delete-forever-outline</v-icon>
+                                  <span class="subheading"> </span>
+                                  <v-icon class="mr-1" @click="dialog_comment = true, IDpostToComment = item.id">mdi-chat-plus-outline</v-icon>
+                                  <span class="subheading mr-2"> </span>
+                                </v-row>
+                            </v-list-item>
+                            <v-spacer></v-spacer>
+                            <v-btn icon @click="show = !show">
+                              <v-icon>{{ show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                            </v-btn>
+                        </v-card-action>
+                        <!--Comments part -->
+                        <v-expand-transition>
+                          <div v-show="show">
+                              <div v-for="items in item.comments" :key="items.id">
+                                  <v-divider></v-divider>
+                            <v-card-text>
+                              {{items.text}}
+                            </v-card-text>
+                            <v-card-text class="caption text-right">
+                                <v-row align="center" justify="end">
+                                  <v-icon class="mr-1" v-show="items.id_author == user.id" @click="dialog_modif_com=true, IDcommentToModify = items.id, textToModify=items.text">mdi-comment-edit-outline</v-icon>
+                                  <span class="subheading"> </span>
+                                  <v-icon class="mr-1" v-show="items.id_author == user.id" @click.stop="dialog_com = true, IDcommentToDelete = items.id">mdi-delete-forever-outline</v-icon>
+                                  <span class="subheading"> </span>
+                                </v-row>
+                              Commentaire posté par {{items.username}}, le {{items.date}} à {{items.time}}
+                            </v-card-text>
+                              </div>
+                          </div>
+                        </v-expand-transition>
+                    </v-card>
                <!-- BTNs "modifier", "supprimer", "commenter" and post informations -->
                 <v-row align="center">
-                    <v-col cols="12" sm="2">
-                        <div class="my-2">
-                            <v-btn v-show="item.id_author == user.id" text small color="primary" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">Modifier</v-btn>
-                        </div>
-                    </v-col>
-                    <v-col cols="12" sm="2">
-                        <div class="my-2">
-                            <v-btn v-show="item.id_author == user.id" text small color="error" @click.stop="dialog = true, IDpostToDelete = item.id">Supprimer</v-btn>
-                        </div>
-                    </v-col>
-                    <v-col cols="12" sm="2">
-                        <div class="my-2">
-                            <v-btn text small color="green" @click="dialog_comment = true, IDpostToComment = item.id">Commenter</v-btn>
-                        </div>
-                    </v-col>
                     <v-col cols="12" sm="6">
                         <div class="my-2 mr-2">
-                            <h3 class="text-right subtitle-2">Posté par {{item.username}} le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></h3> 
+                            <h3 class="text-right subtitle-2 font-italic">Posté par {{item.username}} le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></h3> 
                         </div>
                     </v-col>
-                    
                 </v-row>
-                 <div v-if="item.comments ==! undefined">
-                     <div v-for="items in item.comments" :key="items.id">
-                         <p >
-                             {{items.text}}
-                         </p>
-                     </div>
-                 </div>
-
-                 <v-divider key="index"></v-divider>
                 </div>
                 <!--Dialog box for modify post-->
                     <v-dialog v-model="dialog_modif" max-width="400">
@@ -121,7 +140,37 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="green darken-1" text @click="commentPost()">Commenter</v-btn>
-                                <v-btn color="red darken-1" text @click="dialog_comment = false">Finalement je n'ai rien à ajouter</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog_com = false">Finalement je n'ai rien à ajouter</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                    <!--Dialog box for modify Comment-->
+                    <v-dialog v-model="dialog_modif_com" max-width="400">
+                        <v-card>
+                            <v-card-title class="headline">Modification d'un commentaire</v-card-title>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-text-field label="Voulez-vous modifier ce commentaire ?" v-model="textToModify" required></v-text-field>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="green darken-1" text @click="modifyComment()">Oui</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog_modif_com = false">Non</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                <!--Dialog box for delete Comment-->
+                    <v-dialog v-model="dialog_com" max-width="290">
+                        <v-card>
+                            <v-card-title class="headline">Suppression d'un commentaire</v-card-title>
+                            <v-card-text>Voulez-vous définitivement supprimer ce commentaire ?</v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="green darken-1" text @click="deleteComment()">Oui</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog_com = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -131,8 +180,9 @@
 </template>
 
 <script>
-import Post from "../models/post";
+//import Post from "../models/post";
 import User from "../models/user";
+
 const axios = require('axios');
 export default {
     data () {
@@ -148,13 +198,20 @@ export default {
             dialog: false,
             dialog_modif: false,
             dialog_comment: false,
+            dialog_com: false,
+            dialog_modif_com:false,
+            show:false,
             IDpostToDelete: "",
             IDpostToModify:"",
             IDpostToComment:"",
+            IDcommentToDelete: "",
+            IDcommentToModify:"",
             commentToAdd:"",
             textToModify:"",
             input_modified_post: "",
             ClrSnack:"error",
+            index:0,
+            colorArray:["lime darken-2","grey", "purple","pink", "orange", "red", "blue"],
             user: new User("email","username","id","","",""),
             newPost :"",
             resultMessage:"",
@@ -163,9 +220,8 @@ export default {
             ],
         }
     },
-    created () {
+        created () {
         this.getAllPosts ();
-        this.loadPosts ();
         this.getUser();
     },
     methods: {
@@ -174,160 +230,40 @@ export default {
             this.error = this.post = null;
             this.loading = true;
             this.load = false;
-            localStorage.removeItem('commentsPost');
+            //let postsGetted =[];
             const getPostRequest = async () => {
                 try {
-                    const resp = await axios.get('http://localhost:3000/api/publication/getPosts', {
+                    axios.get('http://localhost:3000/api/publication/getPosts', {
                          params: {
                             number_of_posts: 5
                         }
-                    })//Utiliser.then
-                    if (resp.status == 201) {
-                        //console.log(resp.data.allPosts);
+                    }).then(function(resp){
+                        if (resp.status == 201) {
+
                         localStorage.removeItem("posts");
-                        console.log(resp.data);
-                        for (let item of resp.data.allPosts) {
-                        let newPost = new Post (
-                            this.date = item.date,
-                            this.time = item.time,
-                            this.id = item.id,
-                            this.id_author = item.id_author,
-                            this.username = item.username,
-                            this.modification_date = item.modification_date,
-                            this.modification_time = item.modification_time,
-                            this.text = item.text,
-                            this.comments = item.comments
-                        );
-                        const postArrayString = localStorage.getItem("posts");
-                        if (postArrayString) {
-                            let postArray= JSON.parse(postArrayString);
-                            postArray.push(newPost);
-                            localStorage.setItem("posts", JSON.stringify(postArray));
-                            console.log(postArray);
-                        }
-                        else {
-                            let postArray = [];
-                             postArray.push(newPost);
-                            localStorage.setItem("posts", JSON.stringify(postArray));
-                        }
-                        }
+                        localStorage.setItem("posts",JSON.stringify(resp.data.allPostsCommentsGet))
+                        console.log(resp.data.allPostsCommentsGet);
                     }
-                                this.loading = false;
-                                this.load = true;
-                            }
+                            console.log(JSON.parse(localStorage.getItem("posts")));
+                    })
+                    //Utiliser.then
+                    this.loading = false;
+                    this.load = true;
+                }
                 catch (err){
                     console.log(err);
                 }
             }
-            /*const getcommentsRequest = async () => {
-                try {
-                    let posts = JSON.parse(localStorage.getItem("posts"));
-                    console.log(posts);
-                        for (let item of posts) {
-                         const resp = await axios.get('http://localhost:3000/api/publication/getComments', {
-                         params: {
-                            number: 5,
-                            id_post: item.id
-                        }
-                    })
-                    if (resp.status ==201){
-                        localStorage.removeItem("postsComs");
-                        console.log(resp.data.commentArray);
-                        item.comments = resp.data.commentArray;
-                        let postComArrayString = localStorage.getItem("postsComs");
-                        if (postComArrayString){
-                            let postsComsArray= JSON.parse(postComArrayString);
-                            postsComsArray.push(item);
-                            localStorage.setItem("postsComs", JSON.stringify(postsComsArray));
-
-                        }else {
-                            let postsComsArray = [];
-                            postsComsArray.push(item);
-                            localStorage.setItem("postsComs", JSON.stringify(postsComsArray));
-                        }
-                    }
-                    else{
-                        let postComArrayString = localStorage.getItem("postsComs");
-                        if (postComArrayString){
-                            let postsComsArray= JSON.parse(postComArrayString);
-                            postsComsArray.push(item);
-                            localStorage.setItem("postsComs", JSON.stringify(postsComsArray));
-
-                        }else {
-                            let postsComsArray = [];
-                            postsComsArray.push(item);
-                            localStorage.setItem("postsComs", JSON.stringify(postsComsArray));
-                        }
-                    }
-                }
-                }
-                catch (err){
-                    console.log(err);
-                }
-            }*/
-
-            getPostRequest();
-           //getcommentsRequest();
-           
-        },
-        /*getAllPostsPromise () {
-            const getAllPostsPromises = function () {
-                return new Promise(function(resolve, reject){
-                    const resp = await axios.get('http://localhost:3000/api/publication/getPosts', {
-                         params: {
-                            number_of_posts: 5
-                        }
-                    })
-                    if (resp.status == 201) {
-                        //console.log(resp.data.allPosts);
-                        localStorage.clear("posts");
-                        for (let item of resp.data.allPosts) {
-                        let newPost = new Post  (
-                            this.date = item.date,
-                            this.time = item.time,
-                            this.id = item.id,
-                            this.id_author = item.id_author,
-                            this.username = item.username,
-                            this.modification_date = item.modification_date,
-                            this.modification_time = item.modification_time,
-                            this.text = item.text,
-                            this.comments = item.comments
-                        );
-                        const postArrayString = localStorage.getItem("posts");
-                        if (postArrayString) {
-                            let postArray= JSON.parse(postArrayString);
-                            postArray.push(newPost);
-                            localStorage.setItem("posts", JSON.stringify(postArray));
-                            console.log(postArray);
-                            
-                        }
-                        else {
-                            let postArray = [];
-                             postArray.push(newPost);
-                            localStorage.setItem("posts", JSON.stringify(postArray));
-                        }
-                        }
-                        resolve(resp);
-                    }else {
-                        reject(resp);
-                    }
-
-                })
-            }
-            getAllPostsPromises ()
-            .then {
+            const loadPostFunction = async function(){
+                let awaitReq = await getPostRequest();
+                console.log(awaitReq);
+                console.log(JSON.parse(localStorage.getItem("posts")));
 
             }
-            .catch {
-
-            }
-        },*/
-        //METHOD TO LOAD POST FROM LOCALSTORAGE
-        loadPosts () {
-            console.log(JSON.parse(localStorage.getItem("posts")));
-            const postsGetted= localStorage.getItem("posts");
-            this.posts =JSON.parse(postsGetted);
-            console.log(this.posts);
+           loadPostFunction ();
+           const postsGetted= localStorage.getItem("posts");
+           this.posts =JSON.parse(postsGetted);
+                console.log(this.posts);
         },
         //METHOD TO SEND NEW POST 
         sendNewPost () {
@@ -362,11 +298,10 @@ export default {
         sendPostRequest ();
         this.snackbar = true;
         this.getAllPosts ();
-        this.loadPosts ();
+        
       },
       getUser (){
             //Get id and token of the user with localstorage
-            console.log(localStorage.getItem("user"));
             let localUser_string = localStorage.getItem("user");
             const localUser = JSON.parse(localUser_string);
             //Get asign v-model
@@ -409,7 +344,7 @@ export default {
         this.dialog_modif = false;
         this.snackbar = true;
         this.getAllPosts ();
-        this.loadPosts ();
+        
         },
         deletePost () {
         //Axios request
@@ -440,7 +375,7 @@ export default {
         sendPostRequest ();
         this.snackbar = true;
         this.getAllPosts ();
-        this.loadPosts ();
+        
         },
         commentPost () {
         let date = new Date();// New date
@@ -473,10 +408,86 @@ export default {
         sendPostRequest ();
         this.snackbar = true;
         this.getAllPosts ();
-        this.loadPosts ();
+        
         },
 
-    }
+
+
+
+
+
+        modifyComment () {
+        let date = new Date();// New date
+        const newComment = {//body request
+          id_user: this.user.id,
+          id_post: this.IDcommentToModify,
+          new_text: this.textToModify,
+          new_comment_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
+          new_comment_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
+        };
+      
+        console.log(newComment)
+        //Axios request
+        const sendcommentRequest = async () => {
+            try {
+                const resp = await axios.put('http://localhost:3000/api/publication/updateComment', newComment);
+                if (resp.status == 201) {
+                    this.resultMessage=`Nouveau text posté !`;
+                    this.ClrSnack = "success";
+                    console.log(`Commentaire modifié`);
+                    console.log(resp.data.message);
+                    console.log(this.resultMessage);
+                }else {
+                    this.resultMessage="Le message n'a pas pu être posté, merci de recommencer ultérieurement.";
+                }
+            }
+            catch (err){
+                this.resultMessage="Le message n'a pas pu être posté, merci de recommencer ultérieurement.";
+                console.log(err);
+            }
+        }
+        sendcommentRequest ();
+        this.dialog_modif_com = false;
+        this.snackbar = true;
+        //this.getAllPosts ();
+        
+        },
+
+
+
+        deleteComment () {
+        //Axios request
+        const sendcommentRequest = async () => {
+            try {
+                const resp = await axios.delete('http://localhost:3000/api/publication/deleteComment', {
+                    params: {
+                        id_user: this.user.id,
+                        id_comment: this.IDcommentToDelete,
+                    }
+                });
+                if (resp.status == 201) {
+                    this.resultMessage=`Commentaire supprimé !`;
+                    this.dialog_com= false;
+                    this.ClrSnack = "success";
+                    console.log(`Le commentaire a bien été supprimé`);
+                    console.log(resp.data.message);
+                    console.log(this.resultMessage);
+                }else {
+                    this.resultMessage="Le commentaire n'a pas pu être supprimé, merci de recommencer ultérieurement.";
+                }
+            }
+            catch (err){
+                this.resultMessage="Le commentairee n'a pas pu être supprimé, merci de recommencer ultérieurement.";
+                console.log(err);
+            }
+        }
+        sendcommentRequest ();
+        this.dialog_com = false;
+        this.snackbar = true;
+        this.getAllPosts ();
+        
+        },
+    },
 }
 </script>
 <style>

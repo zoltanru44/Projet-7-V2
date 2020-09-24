@@ -92,7 +92,7 @@ exports.updateComment = (req, res, next) => {
                 return res.status(400).json({ err });
             }
             if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
-                sql_update_comment = `UPDATE comments SET text="${req.body.new_text}",modification_date="${req.body.new_publication_date}", modification_time="${req.body.new_publication_time}" WHERE id="${req.body.id_comment}"`
+                sql_update_comment = `UPDATE comments SET text="${req.body.new_text}",modification_date="${req.body.new_comment_date}", modification_time="${req.body.new_comment_time}" WHERE id="${req.body.id_comment}"`
                 connection.query(sql_update_comment, function(err, result) {
                     if (err) {
                         console.error('error connecting: ' + err.stack);
@@ -171,8 +171,10 @@ exports.getPosts = (req, res, next) => {
                 return new Promise(resolve => {
                     const commentArray = []
                     const sql_get_comments =
-                        `SELECT id, id_author, id_post, DATE_FORMAT(date,"%Y/%m/%d") as date,time,text,DATE_FORMAT(modification_date,"%Y/%m/%d") as modification_date, modification_time
+                        `SELECT comments.id, id_author, id_post, DATE_FORMAT(date,"%Y/%m/%d") as date,time,text,DATE_FORMAT(modification_date,"%Y/%m/%d") as modification_date, modification_time, username
                 FROM comments
+                LEFT JOIN users 
+                ON comments.id_author = users.id
                 WHERE comments.id_post= ${item.id}
                 ORDER By date DESC, time`
                     connection.query(sql_get_comments, (err, rows) => {
@@ -210,9 +212,6 @@ exports.getPosts = (req, res, next) => {
                     this.comments = commentArray,
                 );
                 allPostsComplete.push(post);
-
-
-                //await Promise.all(allPromises);
             }
             return allPostsComplete;
         }
@@ -320,13 +319,13 @@ exports.deletePost = (req, res, next) => {
     }
     //DELETECOMMENT CONTROLLER
 exports.deleteComment = (req, res, next) => {
-    const sql_get_comment = `SELECT * FROM comments WHERE id='${req.body.id_comment}';`
+    const sql_get_comment = `SELECT * FROM comments WHERE id='${req.query.id_comment}';`
     connection.query(sql_get_comment, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
             return res.status(400).json({ err });
         }
-        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.id_user}"`;
+        sql_get_role = `SELECT role FROM users WHERE id ="${req.query.id_user}"`;
         connection.query(sql_get_role, function(err, row) {
             console.log(row);
             console.log(rows);
@@ -334,8 +333,8 @@ exports.deleteComment = (req, res, next) => {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
             }
-            if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
-                const sql_delete_comment = `DELETE FROM comments WHERE id="${req.body.id_comment}"`;
+            if ((req.query.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+                const sql_delete_comment = `DELETE FROM comments WHERE id="${req.query.id_comment}"`;
                 connection.query(sql_delete_comment, (err, result) => {
                     if (err) {
                         console.error('error connecting: ' + err.stack);
