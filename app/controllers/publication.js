@@ -144,7 +144,7 @@ exports.getPosts = (req, res, next) => {
     LIMIT ${req.query.number_of_posts} 
     OFFSET 0;`
         let allPosts;
-        let functionToGetPosts = function() {
+        let toGetPosts = function() {
             return new Promise(resolve => {
                 connection.query(sql_get_posts, (err, rows) => {
                     if (err) {
@@ -167,7 +167,7 @@ exports.getPosts = (req, res, next) => {
             })
         };
         //function to get comments from one post
-        let functionToGetCommentsFromPost = function(item) {
+        let toGetCommentsFromPost = function(item) {
                 return new Promise(resolve => {
                     const commentArray = []
                     const sql_get_comments =
@@ -194,10 +194,10 @@ exports.getPosts = (req, res, next) => {
                 })
             }
             //Function to get all comments from allposts
-        let functionToGetComments = async(allPosts) => {
+        let toGetComments = async(allPosts) => {
             let allPostsComplete = [];
             for (let item of allPosts) {
-                let commentArray = await functionToGetCommentsFromPost(item)
+                let commentArray = await toGetCommentsFromPost(item)
                 console.log(commentArray.length + "commentaires trouvés")
                 console.log(item.id);
                 let post = new Post(
@@ -215,16 +215,16 @@ exports.getPosts = (req, res, next) => {
             }
             return allPostsComplete;
         }
-        let functionToGetPostsComments = async function() {
-            const allPostsGet = await functionToGetPosts();
-            const allPostsCommentsGet = await functionToGetComments(allPostsGet)
+        let toGetPostsComments = async function() {
+            const allPostsGet = await toGetPosts();
+            const allPostsCommentsGet = await toGetComments(allPostsGet)
             console.log("Longeur allPostsGet");
             console.log(allPostsGet.length);
             console.log("Longeur allPostsCommentGet");
             console.log(allPostsCommentsGet.length);
             return res.status(201).json({ allPostsCommentsGet });
         };
-        functionToGetPostsComments();
+        toGetPostsComments();
 
     }
     //GETCOMMENTS CONTROLLER

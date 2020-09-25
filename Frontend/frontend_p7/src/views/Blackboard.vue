@@ -43,12 +43,13 @@
                 <div v-for="item in posts" :key="item.id">
                     <v-card
                     class="mx-auto"
-                    color=deep-purple 
+                    :style="[{'background-color':getRandomColor()}]"
                     dark
                     max-width="600">
                         <v-card-text class="headline font-weight-bold">"{{item.text}}"</v-card-text>
-                        <v-card-action key="item.id">
-                            <v-list-item key="item.id" class="grow">
+                        <v-card-actions>
+                            <v-card-text>
+                                <v-list-item key="item.id" class="grow">
                                 <v-list-item-content>
                                     <v-list-item-title>{{item.username}}</v-list-item-title>
                                 </v-list-item-content>
@@ -62,13 +63,14 @@
                                 </v-row>
                             </v-list-item>
                             <v-spacer></v-spacer>
-                            <v-btn icon @click="show = !show">
-                              <v-icon>{{ show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                            <v-btn icon v-if="item.comments.length!==0" @click="commentActive=item.id, show =!show">
+                              <v-icon>{{ (commentActive==item.id && show) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
                             </v-btn>
-                        </v-card-action>
+                            </v-card-text>
+                        </v-card-actions>
                         <!--Comments part -->
                         <v-expand-transition>
-                          <div v-show="show">
+                          <div v-if="commentActive==item.id" v-show="show">
                               <div v-for="items in item.comments" :key="items.id">
                                   <v-divider></v-divider>
                             <v-card-text>
@@ -201,6 +203,7 @@ export default {
             dialog_com: false,
             dialog_modif_com:false,
             show:false,
+            commentActive: null,
             IDpostToDelete: "",
             IDpostToModify:"",
             IDpostToComment:"",
@@ -211,7 +214,7 @@ export default {
             input_modified_post: "",
             ClrSnack:"error",
             index:0,
-            colorArray:["lime darken-2","grey", "purple","pink", "orange", "red", "blue"],
+            colorArray:["#1abc9c","#2ecc71","#3498db","#9b59b6","#34495e","#f1c40f","#16a085","#27ae60","#2980b9","#8e44ad","#2c3e50","#e67e22","#e74c3c","#7f8c8d"],
             user: new User("email","username","id","","",""),
             newPost :"",
             resultMessage:"",
@@ -225,6 +228,11 @@ export default {
         this.getUser();
     },
     methods: {
+        getRandomColor(){
+            let arrayLenght = this.colorArray.length;
+            let randomNumber = Math.floor(Math.random(arrayLenght)*arrayLenght);
+            return this.colorArray[randomNumber]
+        },
         //Method to get 5 last posts
         getAllPosts () {
             this.error = this.post = null;
@@ -300,7 +308,7 @@ export default {
         this.getAllPosts ();
         
       },
-      getUser (){
+        getUser (){
             //Get id and token of the user with localstorage
             let localUser_string = localStorage.getItem("user");
             const localUser = JSON.parse(localUser_string);
@@ -410,17 +418,11 @@ export default {
         this.getAllPosts ();
         
         },
-
-
-
-
-
-
         modifyComment () {
         let date = new Date();// New date
         const newComment = {//body request
           id_user: this.user.id,
-          id_post: this.IDcommentToModify,
+          id_comment: this.IDcommentToModify,
           new_text: this.textToModify,
           new_comment_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
           new_comment_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
@@ -452,9 +454,6 @@ export default {
         //this.getAllPosts ();
         
         },
-
-
-
         deleteComment () {
         //Axios request
         const sendcommentRequest = async () => {
@@ -488,6 +487,9 @@ export default {
         
         },
     },
+    computed:{
+        
+    }
 }
 </script>
 <style>
