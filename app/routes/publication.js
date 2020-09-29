@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middlewares/auth');
 
 const userCtrl = require('../controllers/publication');
 
-router.post('/addPost', userCtrl.addPost);
+router.post('/addPost', auth, userCtrl.addPost);
 router.post('/addComment', userCtrl.addComment);
 router.put('/updatePost', userCtrl.updatePost);
 router.put('/updateComment', userCtrl.updateComment);

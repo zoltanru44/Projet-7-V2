@@ -13,7 +13,8 @@ const connection = mysql.createConnection({
 
 //ADDPOST CONTROLLER
 exports.addPost = (req, res, next) => {
-    const sql_add_post = `INSERT INTO posts (id_author, date, time, text) VALUES ("${req.body.id_user}","${req.body.publication_date}","${req.body.publication_time}","${req.body.text}")`;
+    const sql_add_post = `INSERT INTO posts (id_author, date, time, text) VALUES ("${req.body.newPost.userId}","${req.body.newPost.publication_date}","${req.body.newPost.publication_time}","${req.body.newPost.text}")`;
+    console.log(req.body);
     connection.query(sql_add_post, (err, result) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
@@ -25,7 +26,7 @@ exports.addPost = (req, res, next) => {
 
 //ADDCOMMENT CONTROLLER
 exports.addComment = (req, res, next) => {
-    const sql_add_comment = `INSERT INTO comments (id_author, id_post, date, time, text) VALUES ("${req.body.id_user}","${req.body.id_post}","${req.body.publication_date}","${req.body.publication_time}","${req.body.text}")`;
+    const sql_add_comment = `INSERT INTO comments (id_author, id_post, date, time, text) VALUES ("${req.body.userId}","${req.body.id_post}","${req.body.publication_date}","${req.body.publication_time}","${req.body.text}")`;
     connection.query(sql_add_comment, (err, result) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
@@ -47,7 +48,7 @@ exports.updatePost = (req, res, next) => {
             console.log("Nouveau texte identique au précédent");
             return res.status(401).json({ error: 'Texte identique au précédent' });
         }
-        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.id_user}"`;
+        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.userId}"`;
         connection.query(sql_get_role, function(err, row) {
             console.log(row);
             console.log(rows);
@@ -55,7 +56,7 @@ exports.updatePost = (req, res, next) => {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
             }
-            if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+            if ((req.body.userId == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
                 sql_update_post = `UPDATE posts SET text="${req.body.new_text}",modification_date="${req.body.new_publication_date}", modification_time="${req.body.new_publication_time}" WHERE id="${req.body.id_post}"`
                 connection.query(sql_update_post, function(err, result) {
                     if (err) {
@@ -83,7 +84,7 @@ exports.updateComment = (req, res, next) => {
             console.log("Nouveau texte identique au précédent");
             return res.status(401).json({ error: 'Texte identique au précédent' });
         }
-        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.id_user}"`;
+        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.userId}"`;
         connection.query(sql_get_role, function(err, row) {
             console.log(row);
             console.log(rows);
@@ -91,7 +92,7 @@ exports.updateComment = (req, res, next) => {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
             }
-            if ((req.body.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+            if ((req.body.userId == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
                 sql_update_comment = `UPDATE comments SET text="${req.body.new_text}",modification_date="${req.body.new_comment_date}", modification_time="${req.body.new_comment_time}" WHERE id="${req.body.id_comment}"`
                 connection.query(sql_update_comment, function(err, result) {
                     if (err) {

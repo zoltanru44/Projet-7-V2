@@ -42,7 +42,7 @@
             <div class="elevation-10 rounded ma-6">
                 <div v-for="item in posts" :key="item.id">
                     <v-card
-                    class="mx-auto"
+                    class="mx-auto my-5 "
                     :style="[{'background-color':getRandomColor()}]"
                     dark
                     max-width="600">
@@ -51,7 +51,7 @@
                             <v-card-text>
                                 <v-list-item key="item.id" class="grow">
                                 <v-list-item-content>
-                                    <v-list-item-title>{{item.username}}</v-list-item-title>
+                                    <v-list-item-title><h3 class="text-right subtitle-2 font-italic">Posté par {{item.username}} le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></h3> </v-list-item-title>
                                 </v-list-item-content>
                                 <v-row align="center" justify="end">
                                   <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
@@ -89,14 +89,6 @@
                           </div>
                         </v-expand-transition>
                     </v-card>
-               <!-- BTNs "modifier", "supprimer", "commenter" and post informations -->
-                <v-row align="center">
-                    <v-col cols="12" sm="6">
-                        <div class="my-2 mr-2">
-                            <h3 class="text-right subtitle-2 font-italic">Posté par {{item.username}} le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></h3> 
-                        </div>
-                    </v-col>
-                </v-row>
                 </div>
                 <!--Dialog box for modify post-->
                     <v-dialog v-model="dialog_modif" max-width="400">
@@ -212,6 +204,7 @@ export default {
             commentToAdd:"",
             textToModify:"",
             input_modified_post: "",
+            token:"",
             ClrSnack:"error",
             index:0,
             colorArray:["#1abc9c","#2ecc71","#3498db","#9b59b6","#34495e","#f1c40f","#16a085","#27ae60","#2980b9","#8e44ad","#2c3e50","#e67e22","#e74c3c","#7f8c8d"],
@@ -231,7 +224,7 @@ export default {
         reload(){
             setTimeout(function(){
                     location.reload();
-                }, 1000);
+                }, 60000);
             
         },
         getRandomColor(){
@@ -282,7 +275,7 @@ export default {
         sendNewPost () {
         let date = new Date();// New date
         const newPost = {//body request
-          id_user: this.user.id,
+          userId: this.user.id,
           text: this.newPost,
           publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
           publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
@@ -291,8 +284,15 @@ export default {
         console.log(newPost)
         //Axios request
         const sendPostRequest = async () => {
+            
             try {
-                const resp = await axios.post('http://localhost:3000/api/publication/addPost', newPost);
+                const resp = await axios({
+                    method: 'post',
+                    url:'http://localhost:3000/api/publication/addPost',
+                    headers:{'authorization':`${this.token}`},
+                    data: {newPost},
+                })
+                
                 if (resp.status == 201) {
                     this.resultMessage=`Nouveau text posté !`;
                     this.ClrSnack = "success";
@@ -320,6 +320,7 @@ export default {
             this.user.email = localUser.email;
             this.user.id = `${localUser.user_id}`;
             this.user.user_role = localUser.user_role;
+            this.token = localUser.token
             console.log(localUser);
         },
         modifyPost () {

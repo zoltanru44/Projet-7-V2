@@ -59,7 +59,7 @@ export default {
         return {
             user: new User("email","username","","","",""),
             initiales : null,
-            valid : false,
+            valid : true,
             emailRules: [
         v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
       ],
@@ -120,6 +120,9 @@ export default {
             axios({
           method: 'put',
           url:'http://localhost:3000/api/auth/updateuser',
+          headers:{
+              'authorization':`${localUser.token}`,
+          },
           data:{
               id : localUser.user_id,
                 new_username : this.user.username,
