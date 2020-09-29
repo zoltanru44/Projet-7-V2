@@ -18,7 +18,7 @@
                       :disabled= !valid
                       color="success"
                       class="mr-4"
-                      @click="sendNewPost">
+                      @click="sendNewPost(),getAllPosts(), reload()">
                       Poster
                     </v-btn>
                     <v-snackbar
@@ -54,9 +54,9 @@
                                     <v-list-item-title>{{item.username}}</v-list-item-title>
                                 </v-list-item-content>
                                 <v-row align="center" justify="end">
-                                  <v-icon class="mr-1" v-show="item.id_author == user.id" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
+                                  <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
                                   <span class="subheading"> </span>
-                                  <v-icon class="mr-1" v-show="item.id_author == user.id" @click.stop="dialog = true, IDpostToDelete = item.id">mdi-delete-forever-outline</v-icon>
+                                  <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog = true, IDpostToDelete = item.id">mdi-delete-forever-outline</v-icon>
                                   <span class="subheading"> </span>
                                   <v-icon class="mr-1" @click="dialog_comment = true, IDpostToComment = item.id">mdi-chat-plus-outline</v-icon>
                                   <span class="subheading mr-2"> </span>
@@ -78,9 +78,9 @@
                             </v-card-text>
                             <v-card-text class="caption text-right">
                                 <v-row align="center" justify="end">
-                                  <v-icon class="mr-1" v-show="items.id_author == user.id" @click="dialog_modif_com=true, IDcommentToModify = items.id, textToModify=items.text">mdi-comment-edit-outline</v-icon>
+                                  <v-icon class="mr-1" v-show="items.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif_com=true, IDcommentToModify = items.id, textToModify=items.text">mdi-comment-edit-outline</v-icon>
                                   <span class="subheading"> </span>
-                                  <v-icon class="mr-1" v-show="items.id_author == user.id" @click.stop="dialog_com = true, IDcommentToDelete = items.id">mdi-delete-forever-outline</v-icon>
+                                  <v-icon class="mr-1" v-show="items.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog_com = true, IDcommentToDelete = items.id">mdi-delete-forever-outline</v-icon>
                                   <span class="subheading"> </span>
                                 </v-row>
                               Commentaire posté par {{items.username}}, le {{items.date}} à {{items.time}}
@@ -111,7 +111,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="modifyPost()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="modifyPost(),getAllPosts(), reload()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_modif = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -123,7 +123,7 @@
                             <v-card-text>Voulez-vous définitivement supprimer ce post ?</v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="deletePost()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="deletePost(),getAllPosts(), reload()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -141,7 +141,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="commentPost()">Commenter</v-btn>
+                                <v-btn color="green darken-1" text @click="commentPost(),getAllPosts(), reload()">Commenter</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_com = false">Finalement je n'ai rien à ajouter</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -159,7 +159,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="modifyComment()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="modifyComment(),getAllPosts(), reload()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_modif_com = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -171,7 +171,7 @@
                             <v-card-text>Voulez-vous définitivement supprimer ce commentaire ?</v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="deleteComment()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="deleteComment(),getAllPosts(), reload()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_com = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -224,10 +224,16 @@ export default {
         }
     },
         created () {
-        this.getAllPosts ();
+        this.getAllPosts();
         this.getUser();
     },
     methods: {
+        reload(){
+            setTimeout(function(){
+                    location.reload();
+                }, 1000);
+            
+        },
         getRandomColor(){
             let arrayLenght = this.colorArray.length;
             let randomNumber = Math.floor(Math.random(arrayLenght)*arrayLenght);
@@ -266,7 +272,6 @@ export default {
                 let awaitReq = await getPostRequest();
                 console.log(awaitReq);
                 console.log(JSON.parse(localStorage.getItem("posts")));
-
             }
            loadPostFunction ();
            const postsGetted= localStorage.getItem("posts");
@@ -305,8 +310,6 @@ export default {
         }
         sendPostRequest ();
         this.snackbar = true;
-        this.getAllPosts ();
-        
       },
         getUser (){
             //Get id and token of the user with localstorage
@@ -316,6 +319,7 @@ export default {
             this.user.username = localUser.userName;
             this.user.email = localUser.email;
             this.user.id = `${localUser.user_id}`;
+            this.user.user_role = localUser.user_role;
             console.log(localUser);
         },
         modifyPost () {
@@ -487,14 +491,10 @@ export default {
         
         },
     },
-    computed:{
-        
-    }
 }
 </script>
 <style>
 #board {
     width: 75%;
 }
-
 </style>

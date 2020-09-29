@@ -26,7 +26,7 @@
       :disabled= !valid
       color="success"
       class="mr-4"
-      @click="validate_async"
+      @click="validate_async(), redirection()"
     >
       Connexion
     </v-btn>
@@ -78,46 +78,16 @@ export default {
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
       ],
     }
-      }
-      ,
+      },
+      mounted (){
+        console.log(this.$store.state.isConnected)
+      },
     methods: {
-        /*validate: function () {
-        console.log(this.user);
-        
-        axios({
-          method: 'post',
-          url:'http://localhost:3000/api/auth/login',
-          data:{
-            username: this.user.username,
-            password: this.user.password,
-          }
-        })
-        .then(function(response){
-          console.log(response);
-          console.log(response.status);
-          if (response.status == 201) {
-            console.log(`Vous êtes connecté sous le nom de ${response.data.username}`);
-            let user= {
-                userName : response.data.username,
-                user_id : response.data.userId,
-                email : response.data.email,
-                token : response.data.token
-            }
-            console.log(user);
-            let user_string = JSON.stringify(user);
-            localStorage.setItem("user", user_string);
-            console.log(localStorage.getItem("user"));
-            return {message:`Vous êtes connecté sous le nom de ${response.data.username}`}
-          }
-        })
-        .catch(function(error){
-          console.log(error);
-          console.log(error.status);
-          console.log(error.data.message);
-         //TO DO : Afficher la snackbar quand il y a une erreur du server
-          return {error: error}
-        })
-      },*/
+      redirection () {
+        setTimeout(function(){
+                    document.location.href="/blackboard"
+                }, 3000);
+      },
       validate_async () {
         const newUser = {
           username: this.user.username,
@@ -133,13 +103,18 @@ export default {
             let user= {
                 userName : resp.data.username,
                 user_id : resp.data.userId,
+                user_role: resp.data.userRole,
                 email : resp.data.email,
                 token : resp.data.token
             }
-            console.log(user);
+            console.log(resp);
             let user_string = JSON.stringify(user);
             localStorage.setItem("user", user_string);
             console.log(localStorage.getItem("user"));
+            let payload = {'token': resp.data.token,'username': resp.data.username, 'userRole': resp.data.userRole}
+            console.log(payload);
+            this.$store.dispatch('connected',payload);
+            console.log(this.$store.state.connexion.isConnected);
             return {message:`Vous êtes connecté sous le nom de ${resp.data.username}`}
             }
             if (resp.status ==200) {

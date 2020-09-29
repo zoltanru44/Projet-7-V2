@@ -5,16 +5,37 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        error_message: "message",
-        comments_1: [],
-        comments_2: [],
-        comments_3: [],
-        comments_4: [],
-        comments_5: [],
-    },
-    mutations: {
+        connexion: {
+            isConnected: false,
+            token: {},
+            username: {},
+            userRole: {},
+        },
+        posts: []
 
     },
-    actions: {},
+
+    mutations: {
+        CONNECTED(state, payload) {
+            state.connexion.isConnected = true;
+            state.connexion.token = payload.token;
+            state.connexion.username = payload.username;
+            state.connexion.userRole = payload.userRole;
+        },
+        DECONNECTED(state) {
+            state.connexion.isConnected = false;
+            state.connexion.token = {};
+            state.connexion.username = {};
+            state.connexion.userRole = {};
+        }
+    },
+    actions: {
+        connected(context, payload) {
+            context.commit('CONNECTED', payload)
+        },
+        deconnected(context) {
+            context.commit('DECONNECTED')
+        }
+    },
     modules: {}
 })

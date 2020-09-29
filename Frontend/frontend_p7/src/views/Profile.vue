@@ -28,7 +28,7 @@
       :disabled="!valid"
       color="success"
       class="mr-4"
-      @click="UpdateUser"
+      @click="UpdateUser(),snackbar = true"
     >
       Validate
     </v-btn>
@@ -36,8 +36,15 @@
             <v-col cols="6" md="6">
                 <v-avatar color="teal" size="48">
                     <span class="white--text headline">{{initiales}}</span>
+                    
                     <!--<v-icon dark>mdi-account-circle</v-icon>-->
                 </v-avatar>
+                <v-list-item>
+                        <v-list-item-content>
+                            <v-list-item-title class="title">Vous êtes connectés sous le nom de {{user.username}}</v-list-item-title>
+                            <v-list-item-subtitle>Compte <span v-if="user.role ==3">Utilisateur</span><span v-if="user.role ==2">Modérateur</span><span v-if="user.role ==1">Administrateur</span></v-list-item-subtitle>
+                        </v-list-item-content>
+                    </v-list-item>
             </v-col>
         </div>
     </div>
@@ -50,9 +57,9 @@ export default {
     name: "profile",
     data () {
         return {
-            user: new User("email","username","",""),
+            user: new User("email","username","","","",""),
             initiales : null,
-            valid : true,
+            valid : false,
             emailRules: [
         v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
       ],
@@ -85,6 +92,7 @@ export default {
             //Get asign v-model
             this.user.username = localUser.userName;
             this.user.email = localUser.email;
+            this.user.role = localUser.user_role;
             console.log(localUser)
 
         },
@@ -102,6 +110,7 @@ export default {
         })
         .then (function(response) {
             console.log(response)
+            
         })
             //Compare if username/email and/or password are different
             //if (localUser.user_id != )

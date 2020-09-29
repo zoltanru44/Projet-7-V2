@@ -33,7 +33,7 @@
       :disabled= !valid
       color="success"
       class="mr-4"
-      @click="validate_async"
+      @click="validate_signup(), login_delay()"
     >
       Valider votre inscription
     </v-btn>
@@ -97,12 +97,16 @@ export default {
 
     }
       },
-      components:{
-        
+       mounted (){
+        console.log(this.$store.state.isConnected)
       },
-      
     methods: {
-      validate_async () {
+      redirection () {
+        setTimeout(function(){
+                    document.location.href="/blackboard"
+                }, 4000);
+      },
+      validate_signup () {
         const newUser = {
           username: this.user.username,
             email:this.user.email,
@@ -127,8 +131,55 @@ export default {
         }
         sendPostRequest ();
         this.snackbar = true;
+      }, 
+      login_delay () {
+        const newUser = {
+          username: this.user.username,
+          password: this.user.password,
+        }
+        const sendPostRequest = async () => {
+          try {
+            const resp = await axios.post('http://localhost:3000/api/auth/login', newUser);
+            this.resultMessage=`Vous êtes connecté sous le nom de ${resp.data.username}`
+            if (resp.status == 201) {
+              console.log(`Vous êtes connecté sous le nom de ${resp.data.username}`);
+            let user= {
+                userName : resp.data.username,
+                user_id : resp.data.userId,
+                user_role: resp.data.userRole,
+                email : resp.data.email,
+                token : resp.data.token
+            }
+            console.log(resp);
+            let user_string = JSON.stringify(user);
+            localStorage.setItem("user", user_string);
+            console.log(localStorage.getItem("user"));
+            let payload = {'token': resp.data.token,'username': resp.data.username, 'userRole': resp.data.userRole}
+            console.log(payload);
+            this.$store.dispatch('connected',payload);
+            console.log(this.$store.state.connexion.isConnected);
+            return {message:`Vous êtes connecté sous le nom de ${resp.data.username}`}
+            }
+            if (resp.status ==200) {
+              this.resultMessage= resp.data.err;
+              
+            }
+            console.log(resp.data.message);
+            console.log(this.resultMessage);
+          }
+          catch (err){
+            console.log(err);
+          }
+        }
+        setTimeout(function(){
+                    sendPostRequest ();
+                }, 1000);
+                setTimeout(function(){
+                    document.location.href="/blackboard";
+                }, 4000);
       }
     }
+    
 }
 </script>
 

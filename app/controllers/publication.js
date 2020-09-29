@@ -183,11 +183,8 @@ exports.getPosts = (req, res, next) => {
                             return res.status(400).json({ err });
                         }
                         if (rows.length >= 1) {
-                            console.log(rows.length + "commentaires trouvés")
-                            console.log(rows);
                             resolve(rows)
                         } else {
-                            console.log("Pas de commentaires trouvés");
                             resolve([]);
                         }
                     })
@@ -198,8 +195,6 @@ exports.getPosts = (req, res, next) => {
             let allPostsComplete = [];
             for (let item of allPosts) {
                 let commentArray = await toGetCommentsFromPost(item)
-                console.log(commentArray.length + "commentaires trouvés")
-                console.log(item.id);
                 let post = new Post(
                     this.date = item.date,
                     this.time = item.time,
@@ -218,10 +213,7 @@ exports.getPosts = (req, res, next) => {
         let toGetPostsComments = async function() {
             const allPostsGet = await toGetPosts();
             const allPostsCommentsGet = await toGetComments(allPostsGet)
-            console.log("Longeur allPostsGet");
-            console.log(allPostsGet.length);
-            console.log("Longeur allPostsCommentGet");
-            console.log(allPostsCommentsGet.length);
+            console.log("données récupérées, il y a " + allPostsCommentsGet.length + " posts")
             return res.status(201).json({ allPostsCommentsGet });
         };
         toGetPostsComments();
