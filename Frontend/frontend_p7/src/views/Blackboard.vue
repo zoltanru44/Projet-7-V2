@@ -326,7 +326,7 @@ export default {
         modifyPost () {
         let date = new Date();// New date
         const newPost = {//body request
-          id_user: this.user.id,
+          userId: this.user.id,
           id_post: this.IDpostToModify,
           new_text: this.textToModify,
           new_publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
@@ -337,7 +337,12 @@ export default {
         //Axios request
         const sendPostRequest = async () => {
             try {
-                const resp = await axios.put('http://localhost:3000/api/publication/updatePost', newPost);
+                const resp = await axios({
+                    method: 'put',
+                    url:'http://localhost:3000/api/publication/updatePost',
+                    headers:{'authorization':`${this.token}`},
+                    data: {newPost},
+                })
                 if (resp.status == 201) {
                     this.resultMessage=`Nouveau text posté !`;
                     this.ClrSnack = "success";
