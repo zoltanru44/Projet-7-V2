@@ -235,8 +235,7 @@ export default {
         reload(){
             setTimeout(function(){
                     location.reload();
-                }, 1500);
-            
+                }, 6000);
         },
         getRandomColor(){
             let arrayLenght = this.colorArray.length;
@@ -250,7 +249,8 @@ export default {
             this.load = false;
             //let postsGetted =[];
             const getPostRequest = async () => {
-                try {
+                return new Promise(resolve => {
+                    try {
                     axios.get('http://localhost:3000/api/publication/getPosts', {
                          params: {
                             number_of_posts: 5,
@@ -258,33 +258,34 @@ export default {
                         }
                     }).then(function(resp){
                         if (resp.status == 201) {
-
                         sessionStorage.removeItem("posts");
                         sessionStorage.setItem("posts",JSON.stringify(resp.data.allPostsCommentsGet))
                         console.log(resp.data.allPostsCommentsGet);
                     }
                             console.log(JSON.parse(sessionStorage.getItem("posts")));
-                             return resp.data.allPostsCommentsGet;
+                             resolve(resp.data.allPostsCommentsGet) ;
                     })
                     //Utiliser.then
                     this.loading = false;
                     this.load = true;
-                   
                 }
                 catch (err){
                     console.log(err);
                 }
-                return JSON.parse(sessionStorage.getItem("posts"));
+                })
             }
             const loadPostFunction = async function(){
                 let awaitReq = await getPostRequest();
                 console.log(awaitReq);
                 console.log(JSON.parse(sessionStorage.getItem("posts")));
             }
-           loadPostFunction ();
-           const postsGetted= sessionStorage.getItem("posts");
+           loadPostFunction ()
+           .then(()=>{
+               const postsGetted= sessionStorage.getItem("posts");
            this.posts =JSON.parse(postsGetted);
-                console.log(this.posts);
+            console.log(this.posts);
+           })
+           
         },
         //METHOD TO SEND NEW POST 
         sendNewPost () {

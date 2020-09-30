@@ -137,7 +137,7 @@ exports.getPosts = (req, res, next) => {
             }
         }
         //Request with JOIN between users and posts
-        const firstPost = req.query.page * 5 - 5;
+        const firstPost = (req.query.page * 5) - 5;
         console.log("nombre du premier post");
         console.log(firstPost);
         const sql_get_posts = `SELECT posts.id,posts.id_author,DATE_FORMAT(date,"%Y/%m/%d") as date,time,text,DATE_FORMAT(modification_date,"%Y/%m/%d") as modification_date, modification_time, username 
@@ -146,7 +146,7 @@ exports.getPosts = (req, res, next) => {
     ON posts.id_author = users.id 
     ORDER By date DESC, time DESC
     LIMIT ${req.query.number_of_posts} 
-    OFFSET ${req.query.page};`
+    OFFSET ${firstPost};`
         let allPosts;
         let toGetPosts = function() {
             return new Promise(resolve => {
