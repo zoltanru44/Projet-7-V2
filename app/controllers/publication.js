@@ -162,7 +162,7 @@ exports.getPosts = (req, res, next) => {
                         resolve(allPosts);
                     } else {
                         console.log("Pas de posts trouvés");
-                        return res.status(400).json({ err });
+                        return res.status(204).json({ err });
                     }
                 })
             })
@@ -286,7 +286,7 @@ exports.deletePost = (req, res, next) => {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
             }
-            sql_get_role = `SELECT role FROM users WHERE id ="${req.query.id_user}"`;
+            sql_get_role = `SELECT role FROM users WHERE id ="${req.query.userId}"`;
             connection.query(sql_get_role, function(err, row) {
                 console.log(row);
                 console.log(rows);
@@ -294,7 +294,7 @@ exports.deletePost = (req, res, next) => {
                     console.error('error connecting: ' + err.stack);
                     return res.status(400).json({ err });
                 }
-                if ((req.query.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+                if ((req.query.userId == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
                     const sql_delete_post = `DELETE FROM posts WHERE id="${req.query.id_post}"`;
                     connection.query(sql_delete_post, (err, result) => {
                         if (err) {
@@ -318,7 +318,7 @@ exports.deleteComment = (req, res, next) => {
             console.error('error connecting: ' + err.stack);
             return res.status(400).json({ err });
         }
-        sql_get_role = `SELECT role FROM users WHERE id ="${req.query.id_user}"`;
+        sql_get_role = `SELECT role FROM users WHERE id ="${req.query.userId}"`;
         connection.query(sql_get_role, function(err, row) {
             console.log(row);
             console.log(rows);
@@ -326,7 +326,7 @@ exports.deleteComment = (req, res, next) => {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
             }
-            if ((req.query.id_user == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+            if ((req.query.userId == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
                 const sql_delete_comment = `DELETE FROM comments WHERE id="${req.query.id_comment}"`;
                 connection.query(sql_delete_comment, (err, result) => {
                     if (err) {

@@ -61,17 +61,17 @@ export default {
             initiales : null,
             valid : true,
             emailRules: [
-        v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+        v => /.+@.+\..+/.test(v) || 'Merci d\'entrer un email valide',
       ],
       usernameRules: [
-        v => (v && v.length <= 10) || 'Name must be less than 10 characters',
+        v => (v && v.length <= 10) || 'Le nom d\'utilisateur doit contenir 10 caractères au maximum',
       ],
       oldPasswordRules: [
         v => !!v || 'Name is required',
-        v => (v && v.length <= 10) || 'Name must be less than 10 characters',
+        v => (v && v.length <= 10) || 'L\'ancien mot de passe doit contenir 10 caractères au maximum',
       ],
        newPasswordRules: [
-        v => (v && v.length <= 10) || 'Name must be less than 10 characters',
+        v => (v && v.length <= 10) || 'Le nouveau mot de passe doit contenir 10 caractères au maximum',
       ],
         }
     },

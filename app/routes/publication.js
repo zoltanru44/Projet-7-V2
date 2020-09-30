@@ -10,7 +10,7 @@ router.put('/updatePost', auth, userCtrl.updatePost);
 router.put('/updateComment', userCtrl.updateComment);
 router.get('/getPosts', userCtrl.getPosts);
 router.get('/getComments', userCtrl.getComments);
-router.delete('/deletePost', userCtrl.deletePost);
-router.delete('/deleteComment', userCtrl.deleteComment);
+router.delete('/deletePost', auth, userCtrl.deletePost);
+router.delete('/deleteComment', auth, userCtrl.deleteComment);
 
 module.exports = router;

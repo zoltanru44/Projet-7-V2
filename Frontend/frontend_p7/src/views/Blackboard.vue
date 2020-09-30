@@ -12,13 +12,14 @@
                     v-model="newPost"
                     :rules="newPostRules"
                     label="Nouveau Post"
+                    class="inputNotRed"
                     ></v-text-field>
                     <div class="text-center" id="btn_snackbar">
                     <v-btn
                       :disabled= !valid
                       color="success"
                       class="mr-4"
-                      @click="sendNewPost(),getAllPosts(), reload()">
+                      @click="sendNewPost(),getNumberOfPosts(),getAllPosts(),shuffleArray()">
                       Poster
                     </v-btn>
                     <v-snackbar
@@ -40,10 +41,10 @@
             </v-form>
             <!--POSTS part-->
             <div class="elevation-10 rounded ma-6">
-                <div v-for="item in posts" :key="item.id">
+                <div v-for="(item, index) in posts" :key="item.id">
                     <v-card
                     class="mx-auto my-5 "
-                    :style="[{'background-color':getRandomColor()}]"
+                    :style="[{'background-color':colorArray[index]}]"
                     dark
                     max-width="600">
                         <v-card-text class="headline font-weight-bold">"{{item.text}}"</v-card-text>
@@ -51,14 +52,14 @@
                             <v-card-text>
                                 <v-list-item key="item.id" class="grow">
                                 <v-list-item-content>
-                                    <v-list-item-title><h3 class="text-right subtitle-2 font-italic">Posté par {{item.username}} le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></h3> </v-list-item-title>
+                                    <v-list-item-title><p class="text-left font-italic info_post">Posté par {{item.username}} <br/>le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></p> </v-list-item-title>
                                 </v-list-item-content>
                                 <v-row align="center" justify="end">
                                   <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
                                   <span class="subheading"> </span>
                                   <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog = true, IDpostToDelete = item.id">mdi-delete-forever-outline</v-icon>
                                   <span class="subheading"> </span>
-                                  <v-icon class="mr-1" @click="dialog_comment = true, IDpostToComment = item.id">mdi-chat-plus-outline</v-icon>
+                                  <v-icon class="mr-1" @click="dialog_comment = true, IDpostToComment = item.id, commentToAdd='' ">mdi-chat-plus-outline</v-icon>
                                   <span class="subheading mr-2"> </span>
                                 </v-row>
                             </v-list-item>
@@ -83,7 +84,7 @@
                                   <v-icon class="mr-1" v-show="items.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog_com = true, IDcommentToDelete = items.id">mdi-delete-forever-outline</v-icon>
                                   <span class="subheading"> </span>
                                 </v-row>
-                              Commentaire posté par {{items.username}}, le {{items.date}} à {{items.time}}
+                              <p>Commentaire posté par {{items.username}}, le {{items.date}} à {{items.time}}</p>
                             </v-card-text>
                               </div>
                           </div>
@@ -92,13 +93,13 @@
                     
                 </div>
                 <div class="text-center">
-                        <v-btn class="mx-2" dark color="primary" v-if="(page>=2)" @click="page--, getAllPosts()">
+                        <v-btn class="mx-2" dark color="primary" v-if="(page>=2)" @click="page--,shuffleArray(), getAllPosts()">
                             <v-icon >mdi-arrow-left-circle-outline</v-icon>
                         </v-btn>
-                        <v-btn class="mx-2" dark color="primary" @click="page++, getAllPosts()">
+                        <v-btn class="mx-2" dark color="primary" @click="page++,shuffleArray(), getAllPosts()" v-if="page<(numberOfPosts/5)">
                             <v-icon >mdi-arrow-right-circle-outline </v-icon>
                         </v-btn>
-                        {{page}}
+                        <p>{{page}} sur {{maxPages}} - {{numberOfPosts}} Commentaires</p>
                     </div>
                 <!--Dialog box for modify post-->
                     <v-dialog v-model="dialog_modif" max-width="400">
@@ -113,7 +114,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="modifyPost(),getAllPosts(), reload()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="modifyPost()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_modif = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -125,7 +126,7 @@
                             <v-card-text>Voulez-vous définitivement supprimer ce post ?</v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="deletePost(),getAllPosts(), reload()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="deletePost()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -143,7 +144,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="commentPost(),getAllPosts(), reload()">Commenter</v-btn>
+                                <v-btn color="green darken-1" text @click="commentPost()">Commenter</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_com = false">Finalement je n'ai rien à ajouter</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -161,7 +162,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="modifyComment(),getAllPosts(), reload()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="modifyComment()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_modif_com = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -173,7 +174,7 @@
                             <v-card-text>Voulez-vous définitivement supprimer ce commentaire ?</v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="deleteComment(),getAllPosts(), reload()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="deleteComment()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_com = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -214,6 +215,8 @@ export default {
             commentToAdd:"",
             textToModify:"",
             input_modified_post: "",
+            maxPages:"",
+            numberOfPosts:"",
             page:"1",
             token:"",
             ClrSnack:"error",
@@ -223,26 +226,68 @@ export default {
             newPost :"",
             resultMessage:"",
             newPostRules:[
-                v => !!v || 'Merci d\'ajouter un texte pour poster un message'
+                v => !!v
             ],
         }
     },
         created () {
-        this.getAllPosts();
-        this.getUser();
+            this.shuffleArray();
+            this.getNumberOfPosts();
+            this.getAllPosts();
+            this.getUser();
     },
     methods: {
-        reload(){
-            setTimeout(function(){
-                    location.reload();
-                }, 6000);
-        },
-        getRandomColor(){
-            let arrayLenght = this.colorArray.length;
-            let randomNumber = Math.floor(Math.random(arrayLenght)*arrayLenght);
-            return this.colorArray[randomNumber]
+        shuffleArray(){
+            let array = this.colorArray;
+            for (var i = array.length - 1; i > 0; i--) {  
+            // Generate random number  
+            var j = Math.floor(Math.random() * (i + 1)); 
+            var temp = array[i]; 
+            array[i] = array[j]; 
+            array[j] = temp; 
+            } 
+            return array; 
         },
         //Method to get 5 last posts
+        getNumberOfPosts (){
+            //let postsGetted =[];
+            const getPostRequest = async () => {
+                return new Promise(resolve => {
+                    try {
+                    axios.get('http://localhost:3000/api/publication/getPosts', {
+                         params: {
+                            number_of_posts: 500,
+                            page:1,
+                        }
+                    }).then(function(resp){
+                        if (resp.status == 201) {
+                        sessionStorage.removeItem("numberOfPosts");
+                        let numberOfPosts = resp.data.allPostsCommentsGet.length
+                        sessionStorage.setItem("numberOfPosts",numberOfPosts)
+                        console.log(numberOfPosts);
+                        resolve(numberOfPosts) ;
+                    }
+                    })
+                    //Utiliser.then
+                }
+                catch (err){
+                    console.log(err);
+                }
+                })
+            }
+            const loadPostFunction = async function(){
+                let awaitReq = await getPostRequest();
+                console.log(awaitReq);
+                console.log(JSON.parse(sessionStorage.getItem("numberOfPosts")));
+            }
+           loadPostFunction ()
+           .then(()=>{
+               const postsGetted= sessionStorage.getItem("numberOfPosts");
+                this.numberOfPosts =JSON.parse(postsGetted);
+                this.maxPages = Math.ceil(this.numberOfPosts/5);
+                console.log(this.numberOfPosts);
+           }) 
+        },
         getAllPosts () {
             this.error = this.post = null;
             this.loading = true;
@@ -263,7 +308,7 @@ export default {
                         console.log(resp.data.allPostsCommentsGet);
                     }
                             console.log(JSON.parse(sessionStorage.getItem("posts")));
-                             resolve(resp.data.allPostsCommentsGet) ;
+                            resolve(resp.data.allPostsCommentsGet) ;
                     })
                     //Utiliser.then
                     this.loading = false;
@@ -282,10 +327,9 @@ export default {
            loadPostFunction ()
            .then(()=>{
                const postsGetted= sessionStorage.getItem("posts");
-           this.posts =JSON.parse(postsGetted);
-            console.log(this.posts);
-           })
-           
+                this.posts =JSON.parse(postsGetted);
+                console.log(this.posts);
+           }) 
         },
         //METHOD TO SEND NEW POST 
         sendNewPost () {
@@ -311,6 +355,7 @@ export default {
                 
                 if (resp.status == 201) {
                     this.resultMessage=`Nouveau text posté !`;
+                    this.newPost = "";
                     this.ClrSnack = "success";
                     console.log(`nouveau post ajouté`);
                     console.log(resp.data.message);
@@ -384,12 +429,15 @@ export default {
         //Axios request
         const sendPostRequest = async () => {
             try {
-                const resp = await axios.delete('http://localhost:3000/api/publication/deletePost', {
+                const resp = await axios({
+                    method: 'delete',
+                    url:'http://localhost:3000/api/publication/deletePost',
+                    headers:{'authorization':`${this.token}`},
                     params: {
-                        id_user: this.user.id,
+                        userId: this.user.id,
                         id_post: this.IDpostToDelete,
                     }
-                });
+                })
                 if (resp.status == 201) {
                     this.resultMessage=`Post supprimé !`;
                     this.dialog= false;
@@ -409,7 +457,6 @@ export default {
         sendPostRequest ();
         this.snackbar = true;
         this.getAllPosts ();
-        
         },
         commentPost () {
         let date = new Date();// New date
@@ -417,7 +464,7 @@ export default {
         const sendPostRequest = async () => {
             try {
                 const resp = await axios.post('http://localhost:3000/api/publication/addComment', {
-                        id_user: this.user.id,
+                        userId: this.user.id,
                         id_post: this.IDpostToComment,
                         text: this.commentToAdd,
                         publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
@@ -458,6 +505,7 @@ export default {
         //Axios request
         const sendcommentRequest = async () => {
             try {
+                
                 const resp = await axios.put('http://localhost:3000/api/publication/updateComment', newComment);
                 if (resp.status == 201) {
                     this.resultMessage=`Nouveau text posté !`;
@@ -484,12 +532,15 @@ export default {
         //Axios request
         const sendcommentRequest = async () => {
             try {
-                const resp = await axios.delete('http://localhost:3000/api/publication/deleteComment', {
+                const resp = await axios({
+                    method: 'delete',
+                    url:'http://localhost:3000/api/publication/deleteComment',
+                    headers:{'authorization':`${this.token}`},
                     params: {
-                        id_user: this.user.id,
+                        userId: this.user.id,
                         id_comment: this.IDcommentToDelete,
                     }
-                });
+                })
                 if (resp.status == 201) {
                     this.resultMessage=`Commentaire supprimé !`;
                     this.dialog_com= false;
@@ -518,5 +569,12 @@ export default {
 <style>
 #board {
     width: 75%;
+
+}
+.error--text{
+    caret-color: black !important;
+}
+.info_post{
+    font-size: 0.8rem !important;
 }
 </style>
