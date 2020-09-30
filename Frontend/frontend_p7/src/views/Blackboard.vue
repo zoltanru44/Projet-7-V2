@@ -5,7 +5,7 @@
             <h1>Chargement en cours</h1>
         </div>
         <div v-if="load" class="container" id="board">
-            <!--Add new comment-->
+            <!--Add new post-->
             <v-form class="post_form elevation-10 rounded ma-6 center" ref="form" v-model="valid" >
                 <v-container >
                     <v-text-field
@@ -89,7 +89,17 @@
                           </div>
                         </v-expand-transition>
                     </v-card>
+                    
                 </div>
+                <div class="text-center">
+                        <v-btn class="mx-2" dark color="primary" v-if="(page>=2)" @click="page--, getAllPosts()">
+                            <v-icon >mdi-arrow-left-circle-outline</v-icon>
+                        </v-btn>
+                        <v-btn class="mx-2" dark color="primary" @click="page++, getAllPosts()">
+                            <v-icon >mdi-arrow-right-circle-outline </v-icon>
+                        </v-btn>
+                        {{page}}
+                    </div>
                 <!--Dialog box for modify post-->
                     <v-dialog v-model="dialog_modif" max-width="400">
                         <v-card>
@@ -204,6 +214,7 @@ export default {
             commentToAdd:"",
             textToModify:"",
             input_modified_post: "",
+            page:"1",
             token:"",
             ClrSnack:"error",
             index:0,
@@ -224,7 +235,7 @@ export default {
         reload(){
             setTimeout(function(){
                     location.reload();
-                }, 60000);
+                }, 1500);
             
         },
         getRandomColor(){
@@ -242,32 +253,36 @@ export default {
                 try {
                     axios.get('http://localhost:3000/api/publication/getPosts', {
                          params: {
-                            number_of_posts: 5
+                            number_of_posts: 5,
+                            page:this.page,
                         }
                     }).then(function(resp){
                         if (resp.status == 201) {
 
-                        localStorage.removeItem("posts");
-                        localStorage.setItem("posts",JSON.stringify(resp.data.allPostsCommentsGet))
+                        sessionStorage.removeItem("posts");
+                        sessionStorage.setItem("posts",JSON.stringify(resp.data.allPostsCommentsGet))
                         console.log(resp.data.allPostsCommentsGet);
                     }
-                            console.log(JSON.parse(localStorage.getItem("posts")));
+                            console.log(JSON.parse(sessionStorage.getItem("posts")));
+                             return resp.data.allPostsCommentsGet;
                     })
                     //Utiliser.then
                     this.loading = false;
                     this.load = true;
+                   
                 }
                 catch (err){
                     console.log(err);
                 }
+                return JSON.parse(sessionStorage.getItem("posts"));
             }
             const loadPostFunction = async function(){
                 let awaitReq = await getPostRequest();
                 console.log(awaitReq);
-                console.log(JSON.parse(localStorage.getItem("posts")));
+                console.log(JSON.parse(sessionStorage.getItem("posts")));
             }
            loadPostFunction ();
-           const postsGetted= localStorage.getItem("posts");
+           const postsGetted= sessionStorage.getItem("posts");
            this.posts =JSON.parse(postsGetted);
                 console.log(this.posts);
         },
@@ -312,8 +327,8 @@ export default {
         this.snackbar = true;
       },
         getUser (){
-            //Get id and token of the user with localstorage
-            let localUser_string = localStorage.getItem("user");
+            //Get id and token of the user with sessionStorage
+            let localUser_string = sessionStorage.getItem("user");
             const localUser = JSON.parse(localUser_string);
             //Get asign v-model
             this.user.username = localUser.userName;

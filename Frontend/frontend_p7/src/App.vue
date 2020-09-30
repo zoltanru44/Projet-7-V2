@@ -2,11 +2,11 @@
   <v-app>
     <div id="app">
     <div id="nav">
-      <router-link to="/">Inscription</router-link> |
-      <router-link to="/login">Connexion</router-link> |
-      <router-link to="/blackboard">Blackboard</router-link> |
-      <router-link to="/profile">Mon profil</router-link> |
-      <router-link to="/logout">Déconnexion</router-link>
+      <router-link v-if="(isConnected()==false)" to="/"> Inscription |</router-link>
+      <router-link v-if="(isConnected()==false)" to="/login"> Connexion </router-link>
+      <router-link v-if="(isConnected()==true)" to="/blackboard"> Blackboard |</router-link>
+      <router-link v-if="(isConnected()==true)" to="/profile"> Mon profil |</router-link>
+      <router-link v-if="(isConnected()==true)" to="/logout"> Déconnexion </router-link>
      
     </div>
     <router-view/>
@@ -15,21 +15,13 @@
 </template>
 <script>
 export default {
-  mounted (){
-    this.isConnected();
-    console.log(this.$store.state.connexion.isConnected);
-  },
+  
 
 methods: {
   isConnected (){
-    if (localStorage.getItem("user")) {
-      let user = localStorage.getItem("user")
-      let payload = {'token': user.token,'username': user.username, 'userRole': user.userRole}
-            console.log(payload);
-            this.$store.dispatch('connected',payload);
+    if (sessionStorage.getItem("user")) {
             return true
     }else {
-      this.$store.dispatch('deconnected');
       return false
     }
   }

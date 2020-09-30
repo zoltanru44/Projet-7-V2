@@ -22,11 +22,12 @@ export default {
 
     methods: {
         deconnexion(){
-            localStorage.removeItem("posts");
-            localStorage.removeItem("user");
+            sessionStorage.removeItem("posts");
+             sessionStorage.removeItem("postsComs");
+            sessionStorage.removeItem("user");
             console.log("déconnection page")
-            console.log(localStorage.getItem("user"));
-            if (localStorage.getItem("user")){
+            console.log(sessionStorage.getItem("user"));
+            if (sessionStorage.getItem("user")){
                 this.connected = true;
                 console.log("Vous êtes encore connecté");
             }

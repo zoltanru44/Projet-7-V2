@@ -86,8 +86,8 @@ export default {
         },
         //Get user informations
         GetUser (){
-            //Get id and token of the user with localstorage
-            let localUser_string = localStorage.getItem("user");
+            //Get id and token of the user with sessionStorage
+            let localUser_string = sessionStorage.getItem("user");
             const localUser = JSON.parse(localUser_string);
             //Get asign v-model
             this.user.username = localUser.userName;
@@ -97,8 +97,8 @@ export default {
 
         },
         UpdateUser () {
-            //Get information with localstorage
-            let localUser_string = localStorage.getItem("user");
+            //Get information with sessionStorage
+            let localUser_string = sessionStorage.getItem("user");
             const localUser = JSON.parse(localUser_string);
             //Get information from database
             axios({

@@ -152,8 +152,8 @@ export default {
             }
             console.log(resp);
             let user_string = JSON.stringify(user);
-            localStorage.setItem("user", user_string);
-            console.log(localStorage.getItem("user"));
+            sessionStorage.setItem("user", user_string);
+            console.log(sessionStorage.getItem("user"));
             let payload = {'token': resp.data.token,'username': resp.data.username, 'userRole': resp.data.userRole}
             console.log(payload);
             this.$store.dispatch('connected',payload);

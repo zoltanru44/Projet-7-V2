@@ -137,13 +137,16 @@ exports.getPosts = (req, res, next) => {
             }
         }
         //Request with JOIN between users and posts
+        const firstPost = req.query.page * 5 - 5;
+        console.log("nombre du premier post");
+        console.log(firstPost);
         const sql_get_posts = `SELECT posts.id,posts.id_author,DATE_FORMAT(date,"%Y/%m/%d") as date,time,text,DATE_FORMAT(modification_date,"%Y/%m/%d") as modification_date, modification_time, username 
     FROM posts 
     LEFT JOIN users 
     ON posts.id_author = users.id 
     ORDER By date DESC, time DESC
     LIMIT ${req.query.number_of_posts} 
-    OFFSET 0;`
+    OFFSET ${req.query.page};`
         let allPosts;
         let toGetPosts = function() {
             return new Promise(resolve => {
@@ -156,9 +159,6 @@ exports.getPosts = (req, res, next) => {
                         //console.log(rows);
                         console.log(rows[0].date);
                         allPosts = rows;
-                        //Boucle récup comm post_id= item.id / Let item from rows
-
-                        //Return rows
                         resolve(allPosts);
                     } else {
                         console.log("Pas de posts trouvés");
