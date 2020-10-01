@@ -74,17 +74,17 @@ exports.updatePost = (req, res, next) => {
 };
 //UPDATECOMMENT CONTROLLER
 exports.updateComment = (req, res, next) => {
-    const sql_get_comment = `SELECT * FROM comments WHERE id='${req.body.id_comment}'`
+    const sql_get_comment = `SELECT * FROM comments WHERE id='${req.body.newComment.id_comment}'`
     connection.query(sql_get_comment, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
             return res.status(400).json({ err });
         }
-        if (req.body.new_text == rows[0].text) {
+        if (req.body.newComment.new_text == rows[0].text) {
             console.log("Nouveau texte identique au précédent");
             return res.status(401).json({ error: 'Texte identique au précédent' });
         }
-        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.userId}"`;
+        sql_get_role = `SELECT role FROM users WHERE id ="${req.body.newComment.userId}"`;
         connection.query(sql_get_role, function(err, row) {
             console.log(row);
             console.log(rows);
@@ -92,8 +92,8 @@ exports.updateComment = (req, res, next) => {
                 console.error('error connecting: ' + err.stack);
                 return res.status(400).json({ err });
             }
-            if ((req.body.userId == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
-                sql_update_comment = `UPDATE comments SET text="${req.body.new_text}",modification_date="${req.body.new_comment_date}", modification_time="${req.body.new_comment_time}" WHERE id="${req.body.id_comment}"`
+            if ((req.body.newComment.userId == rows[0].id_author || row[0].role === 1 || row[0].role === 2)) {
+                sql_update_comment = `UPDATE comments SET text="${req.body.newComment.new_text}",modification_date="${req.body.newComment.new_comment_date}", modification_time="${req.body.newComment.new_comment_time}" WHERE id="${req.body.newComment.id_comment}"`
                 connection.query(sql_update_comment, function(err, result) {
                     if (err) {
                         console.error('error connecting: ' + err.stack);

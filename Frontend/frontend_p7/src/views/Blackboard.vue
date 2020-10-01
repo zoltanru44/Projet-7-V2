@@ -114,7 +114,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="modifyPost()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="modifyPost(), getAllPosts()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_modif = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -126,7 +126,7 @@
                             <v-card-text>Voulez-vous définitivement supprimer ce post ?</v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="deletePost()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="deletePost(), getAllPosts ()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -144,8 +144,8 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="commentPost()">Commenter</v-btn>
-                                <v-btn color="red darken-1" text @click="dialog_com = false">Finalement je n'ai rien à ajouter</v-btn>
+                                <v-btn color="green darken-1" text @click="commentPost(), getAllPosts ()">Commenter</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog_comment = false">Finalement je n'ai rien à ajouter</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -162,7 +162,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="modifyComment()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="modifyComment(), getAllPosts ()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_modif_com = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -174,7 +174,7 @@
                             <v-card-text>Voulez-vous définitivement supprimer ce commentaire ?</v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="deleteComment()">Oui</v-btn>
+                                <v-btn color="green darken-1" text @click="deleteComment(), getAllPosts ()">Oui</v-btn>
                                 <v-btn color="red darken-1" text @click="dialog_com = false">Non</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -264,7 +264,6 @@ export default {
                         sessionStorage.removeItem("numberOfPosts");
                         let numberOfPosts = resp.data.allPostsCommentsGet.length
                         sessionStorage.setItem("numberOfPosts",numberOfPosts)
-                        console.log(numberOfPosts);
                         resolve(numberOfPosts) ;
                     }
                     })
@@ -277,15 +276,13 @@ export default {
             }
             const loadPostFunction = async function(){
                 let awaitReq = await getPostRequest();
-                console.log(awaitReq);
-                console.log(JSON.parse(sessionStorage.getItem("numberOfPosts")));
+                return awaitReq
             }
            loadPostFunction ()
            .then(()=>{
                const postsGetted= sessionStorage.getItem("numberOfPosts");
                 this.numberOfPosts =JSON.parse(postsGetted);
                 this.maxPages = Math.ceil(this.numberOfPosts/5);
-                console.log(this.numberOfPosts);
            }) 
         },
         getAllPosts () {
@@ -305,9 +302,7 @@ export default {
                         if (resp.status == 201) {
                         sessionStorage.removeItem("posts");
                         sessionStorage.setItem("posts",JSON.stringify(resp.data.allPostsCommentsGet))
-                        console.log(resp.data.allPostsCommentsGet);
                     }
-                            console.log(JSON.parse(sessionStorage.getItem("posts")));
                             resolve(resp.data.allPostsCommentsGet) ;
                     })
                     //Utiliser.then
@@ -321,8 +316,8 @@ export default {
             }
             const loadPostFunction = async function(){
                 let awaitReq = await getPostRequest();
-                console.log(awaitReq);
-                console.log(JSON.parse(sessionStorage.getItem("posts")));
+                return awaitReq
+               
             }
            loadPostFunction ()
            .then(()=>{
@@ -463,20 +458,22 @@ export default {
         //Axios request
         const sendPostRequest = async () => {
             try {
-                const resp = await axios.post('http://localhost:3000/api/publication/addComment', {
+                const resp = await axios({
+                    method: 'post',
+                    url:'http://localhost:3000/api/publication/addComment',
+                    headers:{'authorization':`${this.token}`},
+                    data: {
                         userId: this.user.id,
                         id_post: this.IDpostToComment,
                         text: this.commentToAdd,
                         publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
                         publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
-                });
+                    }
+                })
                 if (resp.status == 201) {
                     this.resultMessage=`Commentaire ajouté !`;
                     this.dialog_comment= false;
                     this.ClrSnack = "success";
-                    console.log(`Le commentaire à bien été ajouté`);
-                    console.log(resp.data.message);
-                    console.log(this.resultMessage);
                 }else {
                     this.resultMessage="Le commentaire n'a pas pu être ajouté, merci de recommencer ultérieurement.";
                 }
@@ -494,7 +491,7 @@ export default {
         modifyComment () {
         let date = new Date();// New date
         const newComment = {//body request
-          id_user: this.user.id,
+          userId: this.user.id,
           id_comment: this.IDcommentToModify,
           new_text: this.textToModify,
           new_comment_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
@@ -505,8 +502,14 @@ export default {
         //Axios request
         const sendcommentRequest = async () => {
             try {
-                
-                const resp = await axios.put('http://localhost:3000/api/publication/updateComment', newComment);
+                const resp = await axios({
+                    method: 'put',
+                    url:'http://localhost:3000/api/publication/updateComment',
+                    headers:{'authorization':`${this.token}`},
+                    data: {
+                        newComment
+                    }
+                })
                 if (resp.status == 201) {
                     this.resultMessage=`Nouveau text posté !`;
                     this.ClrSnack = "success";
@@ -545,9 +548,6 @@ export default {
                     this.resultMessage=`Commentaire supprimé !`;
                     this.dialog_com= false;
                     this.ClrSnack = "success";
-                    console.log(`Le commentaire a bien été supprimé`);
-                    console.log(resp.data.message);
-                    console.log(this.resultMessage);
                 }else {
                     this.resultMessage="Le commentaire n'a pas pu être supprimé, merci de recommencer ultérieurement.";
                 }
