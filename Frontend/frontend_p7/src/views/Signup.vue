@@ -33,7 +33,7 @@
       :disabled= !valid
       color="success"
       class="mr-4"
-      @click="validate_signup(), login_delay()"
+      @click="validate_signup()"
     >
       Valider votre inscription
     </v-btn>
@@ -118,6 +118,7 @@ export default {
             this.resultMessage=resp.data.message
             if (resp.status == 201) {
               this.ClrSnack = "success";
+              this.login_delay()
             }
             if (resp.status ==200) {
               this.ClrSnack = "error";

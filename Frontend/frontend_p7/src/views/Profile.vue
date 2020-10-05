@@ -25,13 +25,18 @@
                     </v-text-field>
                 </v-form>
                 <v-btn
-      :disabled="!valid"
-      color="success"
-      class="mr-4"
-      @click="UpdateUser(),snackbar = true"
-    >
-      Validate
-    </v-btn>
+                :disabled="!valid"
+                color="success"
+                class="mr-4"
+                @click="UpdateUser(),snackbar = true">
+                Validate
+                </v-btn>
+                <v-btn
+                color="error"
+                class="mr-4"
+                @click="DeleteUser(),snackbar = true">
+                Supprimer compte
+                </v-btn>
             </v-col>
             <v-col cols="6" md="6">
                 <v-avatar color="teal" size="48">
@@ -93,6 +98,7 @@ export default {
             this.user.username = localUser.userName;
             this.user.email = localUser.email;
             this.user.role = localUser.user_role;
+            this.user.id = localUser.user_id;
             console.log(localUser)
 
         },
@@ -137,9 +143,40 @@ export default {
         })
             
         },
-        DeleteSensitiveInformations () {
-            //Delete informations from local storage
-            //Use thi function when destroy
+        DeleteUser () {
+        //Axios request
+        const sendPostRequest = async () => {
+            try {
+                const resp = await axios({
+                    method: 'delete',
+                    url:'http://localhost:3000/api/auth/deleteUser',
+                    headers:{'authorization':`${this.token}`},
+                    params: {
+                        userId: this.user.id,
+                        password: this.user.password,
+                    }
+                })
+                if (resp.status == 201) {
+                    this.resultMessage=`Utilisateur supprimé !`;
+                    this.dialog= false;
+                    this.ClrSnack = "success";
+                    console.log(`L'utilisateur a bien été supprimé`);
+                    console.log(resp.data.message);
+                    console.log(this.resultMessage);
+                }else {
+                    this.resultMessage="L'utilisateur n'a pas pu être supprimé, merci de recommencer ultérieurement.";
+                }
+            }
+            catch (err){
+                this.resultMessage="L'utilisateur n'a pas pu être supprimé, merci de recommencer ultérieurement.";
+                console.log(err);
+            }
+        }
+        sendPostRequest ();
+        this.snackbar = true;
+        setTimeout(function(){
+                    document.location.href="/logout"
+                }, 3000);
         },
         
     }

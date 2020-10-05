@@ -26,7 +26,8 @@ exports.addPost = (req, res, next) => {
 
 //ADDCOMMENT CONTROLLER
 exports.addComment = (req, res, next) => {
-    const sql_add_comment = `INSERT INTO comments (id_author, id_post, date, time, text) VALUES ("${req.body.userId}","${req.body.id_post}","${req.body.publication_date}","${req.body.publication_time}","${req.body.text}")`;
+    const sql_add_comment = `INSERT INTO comments (id_author, id_post, date, time, text) VALUES ("${req.body.newComment.userId}","${req.body.newComment.id_post}","${req.body.newComment.publication_date}","${req.body.newComment.publication_time}","${req.body.newComment.text}")`;
+    console.log(sql_add_comment);
     connection.query(sql_add_comment, (err, result) => {
         if (err) {
             console.error('error connecting: ' + err.stack);

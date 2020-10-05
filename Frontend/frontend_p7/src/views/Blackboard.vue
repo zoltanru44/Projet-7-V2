@@ -52,7 +52,7 @@
                             <v-card-text>
                                 <v-list-item key="item.id" class="grow">
                                 <v-list-item-content>
-                                    <v-list-item-title><p class="text-left font-italic info_post">Posté par {{item.username}} <br/>le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></p> </v-list-item-title>
+                                    <v-list-item-title><p class="text-left font-italic info_post"><span v-if="item.username!==null">Posté par {{item.username}}</span><span v-if="item.username==null">L'auteur à supprimé son compte</span> <br/>le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></p> </v-list-item-title>
                                 </v-list-item-content>
                                 <v-row align="center" justify="end">
                                   <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
@@ -84,7 +84,7 @@
                                   <v-icon class="mr-1" v-show="items.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog_com = true, IDcommentToDelete = items.id">mdi-delete-forever-outline</v-icon>
                                   <span class="subheading"> </span>
                                 </v-row>
-                              <p>Commentaire posté par {{items.username}}, le {{items.date}} à {{items.time}}</p>
+                              <p><span>Posté par {{items.username}},</span><span>L'autheur a supprimé son compte</span> le {{items.date}} à {{items.time}}</p>
                             </v-card-text>
                               </div>
                           </div>
@@ -267,7 +267,7 @@ export default {
                         resolve(numberOfPosts) ;
                     }
                     })
-                    //Utiliser.then
+                    
                 }
                 catch (err){
                     console.log(err);
@@ -457,17 +457,20 @@ export default {
         let date = new Date();// New date
         //Axios request
         const sendPostRequest = async () => {
+            const newComment={
+                userId: this.user.id,
+                        id_post: this.IDpostToComment,
+                        text: this.commentToAdd,
+                        publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
+                        publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
+            }
             try {
                 const resp = await axios({
                     method: 'post',
                     url:'http://localhost:3000/api/publication/addComment',
                     headers:{'authorization':`${this.token}`},
                     data: {
-                        userId: this.user.id,
-                        id_post: this.IDpostToComment,
-                        text: this.commentToAdd,
-                        publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
-                        publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
+                        newComment
                     }
                 })
                 if (resp.status == 201) {
@@ -475,18 +478,19 @@ export default {
                     this.dialog_comment= false;
                     this.ClrSnack = "success";
                 }else {
+                    this.ClrSnack = "error";
                     this.resultMessage="Le commentaire n'a pas pu être ajouté, merci de recommencer ultérieurement.";
                 }
             }
             catch (err){
-                this.resultMessage="Le commentaire n'a pas pu être ajouté, merci de recommencer ultérieurement.";
+                this.ClrSnack = "error";
+                this.resultMessage="Le commentaire n'a malheureusement pas pu être ajouté, merci de recommencer ultérieurement.";
                 console.log(err);
             }
         }
         sendPostRequest ();
         this.snackbar = true;
         this.getAllPosts ();
-        
         },
         modifyComment () {
         let date = new Date();// New date

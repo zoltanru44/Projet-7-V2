@@ -227,7 +227,7 @@ exports.getUser = (req, res, next) => {
 
 //DELETEUSER CONTROLLER
 exports.deleteUser = (req, res, next) => {
-    const sql_get_user = `SELECT * FROM users WHERE id='${req.body.id}'`;
+    const sql_get_user = `SELECT * FROM users WHERE id='${req.query.userId}'`;
     connection.query(sql_get_user, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
@@ -236,10 +236,10 @@ exports.deleteUser = (req, res, next) => {
         console.log(rows);
         if (rows.length >= 1) {
             console.log("prêt à supprimer " + rows[0].username);
-            bcrypt.compare(req.body.password, rows[0].password, function(err, result) {
+            bcrypt.compare(req.query.password, rows[0].password, function(err, result) {
                 if (result == true) {
                     console.log('mdp ok');
-                    sql_delete_user = `DELETE FROM users WHERE id="${req.body.id}"`;
+                    sql_delete_user = `DELETE FROM users WHERE id="${req.query.userId}"`;
                     connection.query(sql_delete_user, (err, result) => {
                         if (err) {
                             console.error('error connecting: ' + err.stack);
