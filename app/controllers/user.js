@@ -93,6 +93,9 @@ exports.login = (req, res, next) => {
 };
 //UPDATEUSER CONTROLLER
 exports.updateUser = (req, res, next) => {
+    let userNameUpdate = false;
+    let emailUpdate = false;
+    let passwordUpdate = false;
     const sql_get_user = `SELECT * FROM users WHERE id='${req.body.id}'`
     connection.query(sql_get_user, (err, rows) => {
         if (err) {
@@ -116,6 +119,7 @@ exports.updateUser = (req, res, next) => {
                 //New name = old name
                 if (username_user == req.body.new_username) {
                     console.log("nom d\'utilisateur non différent!")
+
                 };
                 if (rows.length >= 1) { //If there is already username in database
                     console.log("Nom d\'utilisateur déjà utilisé")
@@ -130,6 +134,8 @@ exports.updateUser = (req, res, next) => {
                             return res.status(400).json({ err });
                         }
                         console.log("nom d\'utilisateur mis à jour!")
+                        userNameUpdate = true;
+                        console.log(userNameUpdate)
                     })
                 }
             })
@@ -161,6 +167,7 @@ exports.updateUser = (req, res, next) => {
                             return res.status(400).json({ err });
                         }
                         console.log("email mis à jour!")
+                        emailUpdate = true;
                     })
                 }
             })
@@ -185,6 +192,7 @@ exports.updateUser = (req, res, next) => {
                                 }
                                 console.log('connected as id ' + connection.threadId);
                                 console.log('Mot de passe changé');
+                                passwordUpdate = true;
                             })
                         })
                     } else {
@@ -195,8 +203,9 @@ exports.updateUser = (req, res, next) => {
         } else {
             console.log("Merci de rentrer l'ancien et le nouveau mot de passe")
         }
-        //Last return if no errors
-        return res.status(201).json({ message: "Données mises à jour !" });
+        return res.status(201).json({ message: "Utilisateur mis à jour" });
+
+
     })
 };
 

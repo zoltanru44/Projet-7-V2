@@ -113,8 +113,6 @@ export default {
             console.log(sessionStorage.getItem("user"));
             let payload = {'token': resp.data.token,'username': resp.data.username, 'userRole': resp.data.userRole}
             console.log(payload);
-            this.$store.dispatch('connected',payload);
-            console.log(this.$store.state.connexion.isConnected);
             return {message:`Vous êtes connecté sous le nom de ${resp.data.username}`}
             }
             if (resp.status ==200) {
