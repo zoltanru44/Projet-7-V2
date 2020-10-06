@@ -6,7 +6,7 @@
         <v-form  class="login__form" id="login__form"
         ref="form"
         v-model="valid">
-        <v-container>
+        <v-container class="col-md-3">
         <v-text-field
           v-model="user.username"
           :rules="usernameRules"
@@ -134,11 +134,8 @@ export default {
 </script>
 
 <style lang="scss">
-.logo_groupo{
-    width: 300px;
-}
+
 .login__form{
-    width:30%;
     margin:auto;
     &__group{
         display:flex;
@@ -155,10 +152,6 @@ export default {
         }
     }
 }
-.btn_send{
-    border-radius: 5%;
-    padding: 5px 5px;
 
-}
 
 </style>

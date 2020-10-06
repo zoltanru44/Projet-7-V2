@@ -1,7 +1,9 @@
 <template>
     <div class="mon_profil">
         <div class="v-container d-flex justify-content-around">
-            <v-col cols="6" md="6">
+            <v-row
+            align="center" justify="center">
+            <v-col cols="10" md="5" order="2">
                 <v-form ref="form"
                 v-model="valid">
                     <v-text-field
@@ -39,7 +41,7 @@
                 </v-btn>
                
             </v-col>
-            <v-col cols="6" md="6">
+            <v-col cols="10" md="6"  order="1" >
                 <v-avatar color="teal" size="48">
                     <span class="white--text headline">{{initiales}}</span>
                     
@@ -47,7 +49,7 @@
                 </v-avatar>
                 <v-list-item>
                         <v-list-item-content>
-                            <v-list-item-title class="title">Vous êtes connectés sous le nom de {{user.username}}</v-list-item-title>
+                            <v-list-item-title class="title">Vous êtes connectés sous le nom de <br/> {{user.username}}</v-list-item-title>
                             <v-list-item-subtitle>Compte <span v-if="user.role ==3">Utilisateur</span><span v-if="user.role ==2">Modérateur</span><span v-if="user.role ==1">Administrateur</span></v-list-item-subtitle>
                         <div cols="10" md="10">
                             <v-btn
@@ -73,6 +75,25 @@
                         </v-list-item-content>
                     </v-list-item>
             </v-col>
+            </v-row>
+            <v-snackbar
+                      v-model="snackbar"
+                      v-bind:color=ClrSnack
+                      :multi-line="multiLine"
+                    >
+                    {{resultMessage}}
+                      <span v-if="updateName == true">Nom d'utilisateur mis à jour<br/></span>
+                      <span v-if="updateEmail == true">Email mis à jour<br/></span>
+                      <span v-if="updatePassword == true">Mot de passe mis à jour</span>
+
+                      <template v-slot:action="{ attrs }">
+                        <v-btn
+                          v-bind="attrs"
+                          @click="snackbar = false, updateName=false, updateEmail=false, updatePassword=false, dialog_deleteUser=false">
+                          Fermer
+                        </v-btn>
+                      </template>
+                    </v-snackbar>
         </div>
     </div>
 </template>
@@ -90,8 +111,12 @@ export default {
             user: new User("email","username","","","",""),
             currentUser: new User("email","username","","","",""),
             initiales : null,
+            snackbar: false,
+            ClrSnack: "error",
+            multiLine: true,
             valid : false,
             resultMessage:"",
+            resultCode: "",
             updateName: false,
             updateEmail: false,
             updatePassword:false,
@@ -182,10 +207,20 @@ export default {
                         .then (function(response) {
                             console.log("Requête OK");
                             console.log(response.status);
+                            console.log(response.message);
                             if (response.status==201){
+                                sessionStorage.setItem("resultCode","201")
+                                sessionStorage.setItem("resultMessage","Les données de l'utilisateur ont été mises à jour.")
                                 resolve({message:"utilisateur mis à jour"}) 
                             }
+                            else if (response.status == 202){
+                                sessionStorage.setItem("resultCode","202")
+                                sessionStorage.setItem("resultMessage","Mauvais mot de passe")
+                                resolve({message:"Mauvais mot de passe, les données n'ont pas pu être mises à jour"}) 
+                            }
                             else{
+                                sessionStorage.setItem("resultCode","200")
+                                sessionStorage.setItem("resultMessage","Les données de l'utilisateur n'ont pas pu être mises à jour. Merci de vérifier vos informations.")
                                 resolve({message:"l'utilisateur n'a pas pu être mis à jour"}) 
                             }
                         })
@@ -209,32 +244,48 @@ export default {
     //Control if there is change to update
     if (this.user.username !== this.currentUser.username ||this.user.email !== this.currentUser.email || ( this.user.new_password!== "" && this.user.new_password !== this.user.password)){
         getThanPostUser().then(()=> {
-        console.log(this.resultMessage);
+            this.resultMessage=sessionStorage.getItem("resultMessage");
+            this.resultCode=sessionStorage.getItem("resultCode");
+            console.log(this.resultMessage);
+            console.log(this.resultCode);
+        //sessionStorage.removeItem("resultMessage");
         //Define who properties has been changed
-        if(this.user.username !== this.currentUser.username){
+        if (this.resultCode == 201){
+            if(this.user.username !== this.currentUser.username){
                 this.updateName = true;
                 console.log(this.updateName);
                 console.log("Changement du nom d'utilisateur");
                 this.currentUser.username = this.user.username;
+                this.snackbar = true;
+                this.ClrSnack = "success";
             }
         if(this.user.email !== this.currentUser.email){
                 this.updateEmail = true;
                 console.log(this.updateEmail);
                 console.log("Changement de l'adresse email");
                 this.currentUser.email = this.user.email;
+                this.snackbar = true;
+                this.ClrSnack = "success";
             }
         if( this.user.new_password!== "" && this.user.new_password !== this.user.password){
                 this.updatePassword = true;
                 console.log(this.updatePassword);
                 console.log("Changement du mot de passe");
+                this.snackbar = true;
+                this.ClrSnack = "success";
+                this.user.new_password = "";
             }
             //Update local storage
             this.getUserDB();
+        } else {
+            this.snackbar = true;
+            this.ClrSnack = "error";
+        }
     })
     }else{
+        this.resultMessage="Aucune donnée n'a été modifiée"
         console.log("Pas de modification à apporter")
     }
-    
     },
         DeleteUser () {
         //Axios request
@@ -251,13 +302,18 @@ export default {
                 })
                 if (resp.status == 201) {
                     this.resultMessage=`Utilisateur supprimé !`;
+                    this.resultCode = 201;
                     this.dialog= false;
                     this.ClrSnack = "success";
                     console.log(`L'utilisateur a bien été supprimé`);
                     console.log(resp.data.message);
                     console.log(this.resultMessage);
+                    setTimeout(function(){
+                    document.location.href="/logout"
+                }, 3000);
                 }else {
                     this.resultMessage="L'utilisateur n'a pas pu être supprimé, merci de recommencer ultérieurement.";
+                    this.ClrSnack = "error";
                 }
             }
             catch (err){
@@ -267,9 +323,6 @@ export default {
         }
         sendPostRequest ();
         this.snackbar = true;
-        setTimeout(function(){
-                    document.location.href="/logout"
-                }, 3000);
         },
     getUserDB () {
         const newUser = {
@@ -279,9 +332,7 @@ export default {
         const sendPostRequest = async () => {
           try {
             const resp = await axios.post('http://localhost:3000/api/auth/login', newUser);
-            this.resultMessage=`Vous êtes connecté sous le nom de ${resp.data.username}`
             if (resp.status == 201) {
-           
               console.log(`Vous êtes connecté sous le nom de ${resp.data.username}`);
             let user= {
                 userName : resp.data.username,
@@ -294,11 +345,11 @@ export default {
             let user_string = JSON.stringify(user);
             sessionStorage.setItem("user", user_string);
             console.log(sessionStorage.getItem("user"));
-            return {message:`Vous êtes connecté sous le nom de ${resp.data.username}`}
+            this.user.password = "";
+            return {message:`Mise à jour des données de ${resp.data.username}`}
             }
             if (resp.status ==200) {
               this.resultMessage= resp.data.err;
-              
             }
             console.log(resp.data.message);
             console.log(this.resultMessage);
@@ -308,9 +359,10 @@ export default {
           }
         }
         sendPostRequest ();
+        setTimeout(function(){
+                    document.location.href="/profile"
+                }, 1500);
       }
-    
-        
     }
 }
 </script>

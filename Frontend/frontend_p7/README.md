@@ -1,4 +1,4 @@
-# frontend_p7
+# GroupoNetwork
 
 ## Project setup
 ```

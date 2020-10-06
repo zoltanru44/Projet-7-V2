@@ -1,13 +1,13 @@
 <template >
     <div class="signup">
+        <v-container class="col-md-8">
         <img alt="logo-groupomania" src="../assets/icon-above-font.png" class="logo_groupo">
         <h1>Bienvenue sur GroupoNetwork !</h1>
         <h2>Avant de pouvoir partager avec vos collègues, merci de créer un compte.</h2>
-        <v-form  class="signup__form" id="signup__form"
+        <v-form  class="signup__form col-md-4" id="signup__form"
         ref="form"
         v-model="valid"
         >
-        <v-container>
         <v-text-field
           v-model="user.email"
           :rules="emailRules"
@@ -25,8 +25,6 @@
           :rules="passwordRules"
           label="Mot de passe"
           required></v-text-field>
-
- 
     <!--Btn + Snackbar-->
    <div class="text-center" id="btn_snackbar">
     <v-btn
@@ -54,10 +52,9 @@
         </v-btn>
       </template>
     </v-snackbar>
-  </div>
-
-        </v-container>
+    </div>
         </v-form>
+        </v-container>
     </div>
 </template>
 
@@ -186,10 +183,10 @@ export default {
 
 <style lang="scss">
 .logo_groupo{
-    width: 300px;
+  width: 100%;
+  max-width: 200px;
 }
 .signup__form{
-    width:30%;
     margin:auto;
     &__group{
         display:flex;
@@ -208,8 +205,6 @@ export default {
 }
 .btn_send{
     border-radius: 5%;
-    padding: 5px 5px;
-
 }
 
 </style>

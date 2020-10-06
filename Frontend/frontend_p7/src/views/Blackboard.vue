@@ -1,5 +1,4 @@
 <template>
-
     <div class="blackboard" id="Blackboard">
         <div class="loarding" v-if="loading">
             <h1>Chargement en cours</h1>
@@ -46,28 +45,27 @@
                     class="mx-auto my-5 "
                     :style="[{'background-color':colorArray[index]}]"
                     dark
-                    max-width="600">
+                    >
                         <v-card-text class="headline font-weight-bold">"{{item.text}}"</v-card-text>
+                        <v-card-subtitle>
+                            <span v-if="item.username!==null">Posté par {{item.username}}<br/></span><span v-if="item.username==null">L'auteur à supprimé son compte,<br/> publié </span> le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span>
+                        </v-card-subtitle>
                         <v-card-actions>
-                            <v-card-text>
-                                <v-list-item key="item.id" class="grow">
-                                <v-list-item-content>
-                                    <v-list-item-title><p class="text-left font-italic info_post"><span v-if="item.username!==null">Posté par {{item.username}}</span><span v-if="item.username==null">L'auteur à supprimé son compte</span> <br/>le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span></p> </v-list-item-title>
-                                </v-list-item-content>
-                                <v-row align="center" justify="end">
-                                  <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
-                                  <span class="subheading"> </span>
-                                  <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog = true, IDpostToDelete = item.id">mdi-delete-forever-outline</v-icon>
-                                  <span class="subheading"> </span>
-                                  <v-icon class="mr-1" @click="dialog_comment = true, IDpostToComment = item.id, commentToAdd='' ">mdi-chat-plus-outline</v-icon>
-                                  <span class="subheading mr-2"> </span>
-                                </v-row>
-                            </v-list-item>
+                            <v-spacer></v-spacer>
+                            <v-btn v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">
+                                <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
+                            </v-btn>
+                            <v-btn v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog = true, IDpostToDelete = item.id">
+                                <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog = true, IDpostToDelete = item.id">mdi-delete-forever-outline</v-icon>
+                            </v-btn>
+                            <v-btn @click="dialog_comment = true, IDpostToComment = item.id, commentToAdd='' ">
+                                <v-icon class="mr-1" @click="dialog_comment = true, IDpostToComment = item.id, commentToAdd='' ">mdi-chat-plus-outline</v-icon>
+                            </v-btn>
                             <v-spacer></v-spacer>
                             <v-btn icon v-if="item.comments.length!==0" @click="commentActive=item.id, show =!show">
                               <v-icon>{{ (commentActive==item.id && show) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
                             </v-btn>
-                            </v-card-text>
+                            
                         </v-card-actions>
                         <!--Comments part -->
                         <v-expand-transition>
@@ -84,7 +82,7 @@
                                   <v-icon class="mr-1" v-show="items.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog_com = true, IDcommentToDelete = items.id">mdi-delete-forever-outline</v-icon>
                                   <span class="subheading"> </span>
                                 </v-row>
-                              <p><span>Posté par {{items.username}},</span><span>L'autheur a supprimé son compte</span> le {{items.date}} à {{items.time}}</p>
+                              <p><span v-if="items.username!==null">Posté par {{items.username}},</span><span v-if="items.username==null">L'auteur a supprimé son compte, publié</span> le {{items.date}} à {{items.time}}</p>
                             </v-card-text>
                               </div>
                           </div>
@@ -145,7 +143,7 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="green darken-1" text @click="commentPost(), getAllPosts ()">Commenter</v-btn>
-                                <v-btn color="red darken-1" text @click="dialog_comment = false">Finalement je n'ai rien à ajouter</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog_comment = false">Annuler</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -571,10 +569,7 @@ export default {
 }
 </script>
 <style>
-#board {
-    width: 75%;
 
-}
 .error--text{
     caret-color: black !important;
 }
