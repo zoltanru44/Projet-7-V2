@@ -45,10 +45,10 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 //Use the router for user requests
 app.use('/api/auth', userRoutes);
-/*
-//Use the router for sauces requests
-app.use('/api/sauces', sauceRoutes);
-*/
+
+//Use the router for publication requests
+app.use('/api/publication', publicationRoutes);
+
 
 
 module.exports = app;

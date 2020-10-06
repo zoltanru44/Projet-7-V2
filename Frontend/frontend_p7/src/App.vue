@@ -1,18 +1,31 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <v-app>
+    <div id="app">
+    <div id="nav">
+      <router-link v-if="(isConnected()==false)" to="/"> Inscription |</router-link>
+      <router-link v-if="(isConnected()==false)" to="/login"> Connexion </router-link>
+      <router-link v-if="(isConnected()==true)" to="/blackboard"> Blackboard |</router-link>
+      <router-link v-if="(isConnected()==true)" to="/profile"> Mon profil |</router-link>
+      <router-link v-if="(isConnected()==true)" to="/logout"> Déconnexion </router-link>
+     
+    </div>
+    <router-view/>
   </div>
+  </v-app>
 </template>
-
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  
+
+methods: {
+  isConnected (){
+    if (sessionStorage.getItem("user")) {
+            return true
+    }else {
+      return false
+    }
   }
+}
 }
 </script>
 
@@ -23,6 +36,15 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+#nav {
+  padding: 30px;
+  a {
+    font-weight: bold;
+    color: #2c3e50;
+    &.router-link-exact-active {
+      color: #42b983;
+    }
+  }
 }
 </style>
