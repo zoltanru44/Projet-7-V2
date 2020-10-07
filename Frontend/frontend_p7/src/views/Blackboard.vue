@@ -42,7 +42,7 @@
             <div class="elevation-10 rounded ma-6">
                 <div v-for="(item, index) in posts" :key="item.id">
                     <v-card
-                    class="mx-auto my-5 "
+                    class="mx-auto my-5"
                     :style="[{'background-color':colorArray[index]}]"
                     dark
                     >
@@ -53,13 +53,13 @@
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">
-                                <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
+                                <v-icon v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">mdi-comment-edit-outline</v-icon>
                             </v-btn>
                             <v-btn v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog = true, IDpostToDelete = item.id">
-                                <v-icon class="mr-1" v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog = true, IDpostToDelete = item.id">mdi-delete-forever-outline</v-icon>
+                                <v-icon v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog = true, IDpostToDelete = item.id">mdi-delete-forever-outline</v-icon>
                             </v-btn>
                             <v-btn @click="dialog_comment = true, IDpostToComment = item.id, commentToAdd='' ">
-                                <v-icon class="mr-1" @click="dialog_comment = true, IDpostToComment = item.id, commentToAdd='' ">mdi-chat-plus-outline</v-icon>
+                                <v-icon @click="dialog_comment = true, IDpostToComment = item.id, commentToAdd='' ">mdi-chat-plus-outline</v-icon>
                             </v-btn>
                             <v-spacer></v-spacer>
                             <v-btn icon v-if="item.comments.length!==0" @click="commentActive=item.id, show =!show">
@@ -69,7 +69,7 @@
                         </v-card-actions>
                         <!--Comments part -->
                         <v-expand-transition>
-                          <div v-if="commentActive==item.id" v-show="show">
+                          <div v-show="commentActive==item.id && show">
                               <div v-for="items in item.comments" :key="items.id">
                                   <v-divider></v-divider>
                             <v-card-text>
@@ -205,6 +205,7 @@ export default {
             dialog_modif_com:false,
             show:false,
             commentActive: null,
+            commentShow: false,
             IDpostToDelete: "",
             IDpostToModify:"",
             IDpostToComment:"",
@@ -219,7 +220,7 @@ export default {
             token:"",
             ClrSnack:"error",
             index:0,
-            colorArray:["#1abc9c","#2ecc71","#3498db","#9b59b6","#34495e","#f1c40f","#16a085","#27ae60","#2980b9","#8e44ad","#2c3e50","#e67e22","#e74c3c","#7f8c8d"],
+            colorArray:["#333399","#6666cc","#19194d","#ff8080","#ff4d4d","#cc5200","#ff8533","#662900"],//"#1abc9c","#2ecc71","#3498db","#9b59b6","#34495e","#f1c40f","#16a085","#27ae60","#2980b9","#8e44ad","#2c3e50","#e67e22","#e74c3c","#7f8c8d"],
             user: new User("email","username","id","","",""),
             newPost :"",
             resultMessage:"",
@@ -229,6 +230,7 @@ export default {
         }
     },
         created () {
+            this.verificationLog();
             this.shuffleArray();
             this.getNumberOfPosts();
             this.getAllPosts();
@@ -246,6 +248,14 @@ export default {
             } 
             return array; 
         },
+       verificationLog(){
+           if (sessionStorage.getItem("user")){
+               console.log("l'utilisateur est bien connecté")
+           }
+           else{
+               document.location.href="/"
+           }
+       },
         //Method to get 5 last posts
         getNumberOfPosts (){
             //let postsGetted =[];
@@ -575,5 +585,11 @@ export default {
 }
 .info_post{
     font-size: 0.8rem !important;
+}
+.v-snack__wrapper{
+    min-width: 50px !important;
+}
+.v-btn{
+    min-width: 15px !important;
 }
 </style>

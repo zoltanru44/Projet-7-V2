@@ -1,12 +1,13 @@
 <template>
     <div class="login">
+      <v-container class="col-md-8 elevation-10 rounded">
          <img alt="logo-groupomania" src="../assets/icon-above-font.png" class="logo_groupo">
         <h1>Bienvenue sur GroupoNetwork !</h1>
         <h2>Avant de pouvoir partager avec vos collègues, merci de vous connecter.</h2>
-        <v-form  class="login__form" id="login__form"
+        <v-form  class="login__form col-md-4" id="login__form"
         ref="form"
         v-model="valid">
-        <v-container class="col-md-3">
+        
         <v-text-field
           v-model="user.username"
           :rules="usernameRules"
@@ -26,7 +27,7 @@
       :disabled= !valid
       color="success"
       class="mr-4"
-      @click="validate_async(), redirection()"
+      @click="validate_async()"
     >
       Connexion
     </v-btn>
@@ -48,8 +49,9 @@
       </template>
     </v-snackbar>
   </div>
+  </v-form>
         </v-container>
-        </v-form>
+        
     </div>
 </template>
 
@@ -113,6 +115,9 @@ export default {
             console.log(sessionStorage.getItem("user"));
             let payload = {'token': resp.data.token,'username': resp.data.username, 'userRole': resp.data.userRole}
             console.log(payload);
+            setTimeout(function(){
+                    document.location.href="/blackboard"
+                }, 3000);
             return {message:`Vous êtes connecté sous le nom de ${resp.data.username}`}
             }
             if (resp.status ==200) {

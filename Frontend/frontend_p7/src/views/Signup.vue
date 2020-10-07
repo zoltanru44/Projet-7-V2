@@ -1,6 +1,6 @@
 <template >
     <div class="signup">
-        <v-container class="col-md-8">
+        <v-container class="col-md-8 elevation-10 rounded">
         <img alt="logo-groupomania" src="../assets/icon-above-font.png" class="logo_groupo">
         <h1>Bienvenue sur GroupoNetwork !</h1>
         <h2>Avant de pouvoir partager avec vos collègues, merci de créer un compte.</h2>

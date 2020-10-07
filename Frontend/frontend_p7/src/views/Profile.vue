@@ -1,9 +1,40 @@
 <template>
     <div class="mon_profil">
-        <div class="v-container d-flex justify-content-around">
+        <v-container >
             <v-row
             align="center" justify="center">
-            <v-col cols="10" md="5" order="2">
+            <v-col cols="10" md="6" class="elevation-10 rounded">
+                <v-avatar color="teal" size="48">
+                    <span class="white--text headline">{{initiales}}</span>
+                </v-avatar>
+                <v-list-item>
+                        <v-list-item-content>
+                            <v-list-item-title class="title">Vous êtes connectés sous le nom de <br/> {{user.username}}</v-list-item-title>
+                            <v-list-item-subtitle>Compte <span v-if="user.role ==3">Utilisateur</span><span v-if="user.role ==2">Modérateur</span><span v-if="user.role ==1">Administrateur</span></v-list-item-subtitle>
+                        <div cols="8" md="10">
+                            <v-btn
+                            :disabled="!valid"
+                            color="error"
+                            class="mr-4"
+                            @click="dialog_deleteUser= true">
+                            Supprimer le compte
+                            </v-btn>
+                        </div>
+                        <!--Dialog box for delete user-->
+                    <v-dialog v-model="dialog_deleteUser" max-width="350">
+                        <v-card>
+                            <v-card-title class="headline">Suppression du compte</v-card-title>
+                            <v-card-text>Voulez-vous définitivement supprimer votre compte ?</v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="green darken-1" text @click="DeleteUser()">Oui</v-btn>
+                                <v-btn color="red darken-1" text @click="dialog_deleteUser = false">Non</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                        </v-list-item-content>
+                    </v-list-item>
+           
                 <v-form ref="form"
                 v-model="valid">
                     <v-text-field
@@ -37,49 +68,14 @@
                 color="success"
                 class="mr-4"
                 @click="UpdateUser(),snackbar = true">
-                Validate
+                Valider
                 </v-btn>
-               
-            </v-col>
-            <v-col cols="10" md="6"  order="1" >
-                <v-avatar color="teal" size="48">
-                    <span class="white--text headline">{{initiales}}</span>
-                    
-                    <!--<v-icon dark>mdi-account-circle</v-icon>-->
-                </v-avatar>
-                <v-list-item>
-                        <v-list-item-content>
-                            <v-list-item-title class="title">Vous êtes connectés sous le nom de <br/> {{user.username}}</v-list-item-title>
-                            <v-list-item-subtitle>Compte <span v-if="user.role ==3">Utilisateur</span><span v-if="user.role ==2">Modérateur</span><span v-if="user.role ==1">Administrateur</span></v-list-item-subtitle>
-                        <div cols="10" md="10">
-                            <v-btn
-                            :disabled="!valid"
-                            color="error"
-                            class="mr-4"
-                            @click="dialog_deleteUser= true">
-                            Supprimer le compte
-                            </v-btn>
-                        </div>
-                        <!--Dialog box for delete user-->
-                    <v-dialog v-model="dialog_deleteUser" max-width="350">
-                        <v-card>
-                            <v-card-title class="headline">Suppression du compte</v-card-title>
-                            <v-card-text>Voulez-vous définitivement supprimer votre compte ?</v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="green darken-1" text @click="DeleteUser()">Oui</v-btn>
-                                <v-btn color="red darken-1" text @click="dialog_deleteUser = false">Non</v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
-                        </v-list-item-content>
-                    </v-list-item>
-            </v-col>
-            </v-row>
-            <v-snackbar
+               <v-snackbar
                       v-model="snackbar"
                       v-bind:color=ClrSnack
                       :multi-line="multiLine"
+                      :timeout="4000"
+                      
                     >
                     {{resultMessage}}
                       <span v-if="updateName == true">Nom d'utilisateur mis à jour<br/></span>
@@ -94,7 +90,11 @@
                         </v-btn>
                       </template>
                     </v-snackbar>
-        </div>
+            </v-col>
+            
+            </v-row>
+            
+        </v-container>
     </div>
 </template>
 
@@ -366,3 +366,8 @@ export default {
     }
 }
 </script>
+<style>
+.v-snack__wrapper{
+    min-width: 50px !important;
+}
+</style>
