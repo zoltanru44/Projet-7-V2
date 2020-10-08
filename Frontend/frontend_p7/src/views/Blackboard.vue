@@ -95,7 +95,22 @@
                                   <v-icon class="mr-1" v-show="items.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click.stop="dialog_com = true, IDcommentToDelete = items.id">mdi-delete-forever-outline</v-icon>
                                   <span class="subheading"> </span>
                                 </v-row>
-                              <p><span v-if="items.username!==null">Posté par {{items.username}},</span><span v-if="items.username==null">L'auteur a supprimé son compte, publié</span> le {{items.date}} à {{items.time}}</p>
+                              <p>
+                                  <span v-if="items.username!==null">@{{items.username}}</span>
+                            <span v-if="items.username==null">L'auteur à supprimé son compte,</span> 
+                            <span v-if="!items.modification_date"><br/>publié il y a 
+                            <span v-if="GetTimeDifferenceNow(items.date, items.time).day">{{GetTimeDifferenceNow(items.date, items.time).day}} jours et </span>
+                            <span v-if="GetTimeDifferenceNow(items.date, items.time).hour">{{GetTimeDifferenceNow(items.date, items.time).hour}} heure<span v-if="GetTimeDifferenceNow(items.date, items.time).hour>1">s</span></span>
+                            <span v-if="GetTimeDifferenceNow(items.date, items.time).min && !GetTimeDifferenceNow(items.date, items.time).hour && !GetTimeDifferenceNow(items.date, items.time).day">{{GetTimeDifferenceNow(items.date, items.time).min}} minute<span v-if="GetTimeDifferenceNow(items.date, items.time).min>1">s</span> et </span>
+                            <span v-if="GetTimeDifferenceNow(items.date, items.time).sec && !GetTimeDifferenceNow(items.date, items.time).hour && !GetTimeDifferenceNow(items.date, items.time).day">{{GetTimeDifferenceNow(items.date, items.time).sec}} secondes</span>
+                            </span>
+                            <span v-if="items.modification_date"><br/>modifié il y a 
+                            <span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).day">{{GetTimeDifferenceNow(items.modification_date, items.modification_time).day}} jours et </span>
+                            <span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).hour">{{GetTimeDifferenceNow(items.modification_date, items.modification_time).hour}} heure<span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).hour>1">s</span></span>
+                            <span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).min && !GetTimeDifferenceNow(items.modification_date, items.modification_time).hour && !GetTimeDifferenceNow(items.modification_date, items.modification_time).day">{{GetTimeDifferenceNow(items.modification_date, items.modification_time).min}} minute<span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).min>1">s</span> et </span>
+                            <span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).sec && !GetTimeDifferenceNow(items.modification_date, items.modification_time).hour && !GetTimeDifferenceNow(items.modification_date, items.modification_time).day">{{GetTimeDifferenceNow(items.modification_date, items.modification_time).sec}} secondes</span>
+                            </span>
+                              </p>
                             </v-card-text>
                               </div>
                           </div>
