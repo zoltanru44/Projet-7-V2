@@ -12,7 +12,8 @@
           v-model="user.email"
           :rules="emailRules"
           label="Email"
-          required></v-text-field>
+          required
+          type="email"></v-text-field>
 
         <v-text-field
           v-model="user.username"
@@ -24,7 +25,8 @@
           v-model="user.password"
           :rules="passwordRules"
           label="Mot de passe"
-          required></v-text-field>
+          required
+          type="password"></v-text-field>
     <!--Btn + Snackbar-->
    <div class="text-center" id="btn_snackbar">
     <v-btn

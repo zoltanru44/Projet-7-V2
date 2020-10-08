@@ -18,7 +18,8 @@
           v-model="user.password"
           :rules="passwordRules"
           label="Mot de passe"
-          required></v-text-field>
+          required
+          type="password"></v-text-field>
 
 
      <!--Btn + Snackbar-->

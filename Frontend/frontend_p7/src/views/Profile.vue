@@ -45,12 +45,15 @@
                     <v-text-field
                         v-model="user.email"
                         :rules="emailRules"
-                        label="Adresse mail">
+                        label="Adresse mail"
+                        type="email">
                     </v-text-field>
                     <v-text-field
                         v-model="user.password"
                         :rules="oldPasswordRules"
-                        label="Mot de passe actuel">
+                        label="Mot de passe actuel"
+                        type="password">
+                        
                     </v-text-field>
                     <v-checkbox
                     v-model="changePsw"
@@ -60,7 +63,8 @@
                         v-if="changePsw ==true"
                         v-model="user.new_password"
                         :rules="newPasswordRules"
-                        label="Nouveau mot de passe">
+                        label="Nouveau mot de passe"
+                        type="password">
                     </v-text-field>
                 </v-form>
                 <v-btn

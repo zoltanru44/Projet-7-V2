@@ -14,12 +14,31 @@
      
     </div>
     <router-view/>
+    <!--FOOTER-->
+    <div>
+      <v-footer padless class="my-4">
+        <v-row justify="center no-gutters">
+          <v-btn v-for="link in links" :key="link" test rounded class="my-2 mx-4">
+            {{link}}
+          </v-btn>
+        </v-row>
+      <v-col class="text-center py-4" cols="12">Groupomania - {{ new Date().getFullYear() }}</v-col>
+    </v-footer>
+    </div>
+    
+    
   </div>
   </v-app>
 </template>
 <script>
 export default {
-  
+  data:()=>({
+    links: [
+      'A propos',
+      'FAQ',
+      'Mentions légales',
+    ]
+  }),
 
 methods: {
   isConnected (){

@@ -48,7 +48,20 @@
                     >
                         <v-card-text class="headline font-weight-bold">"{{item.text}}"</v-card-text>
                         <v-card-subtitle>
-                            <span v-if="item.username!==null">Posté par {{item.username}}<br/></span><span v-if="item.username==null">L'auteur à supprimé son compte,<br/> publié </span> le {{item.date}} à {{item.time}}<span v-if="item.modification_date"><br/>modifié le {{item.modification_date}} à {{item.modification_time}}</span>
+                            <span v-if="item.username!==null">@{{item.username}}</span>
+                            <span v-if="item.username==null">L'auteur à supprimé son compte,</span> 
+                            <span v-if="!item.modification_date"><br/>publié il y a 
+                            <span v-if="GetTimeDifferenceNow(item.date, item.time).day">{{GetTimeDifferenceNow(item.date, item.time).day}} jours et </span>
+                            <span v-if="GetTimeDifferenceNow(item.date, item.time).hour">{{GetTimeDifferenceNow(item.date, item.time).hour}} heure<span v-if="GetTimeDifferenceNow(item.date, item.time).hour>1">s</span></span>
+                            <span v-if="GetTimeDifferenceNow(item.date, item.time).min && !GetTimeDifferenceNow(item.date, item.time).hour && !GetTimeDifferenceNow(item.date, item.time).day">{{GetTimeDifferenceNow(item.date, item.time).min}} minute<span v-if="GetTimeDifferenceNow(item.date, item.time).min>1">s</span> et </span>
+                            <span v-if="GetTimeDifferenceNow(item.date, item.time).sec && !GetTimeDifferenceNow(item.date, item.time).hour && !GetTimeDifferenceNow(item.date, item.time).day">{{GetTimeDifferenceNow(item.date, item.time).sec}} secondes</span>
+                            </span>
+                            <span v-if="item.modification_date"><br/>modifié il y a 
+                            <span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).day">{{GetTimeDifferenceNow(item.modification_date, item.modification_time).day}} jours et </span>
+                            <span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).hour">{{GetTimeDifferenceNow(item.modification_date, item.modification_time).hour}} heure<span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).hour>1">s</span></span>
+                            <span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).min && !GetTimeDifferenceNow(item.modification_date, item.modification_time).hour && !GetTimeDifferenceNow(item.modification_date, item.modification_time).day">{{GetTimeDifferenceNow(item.modification_date, item.modification_time).min}} minute<span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).min>1">s</span> et </span>
+                            <span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).sec && !GetTimeDifferenceNow(item.modification_date, item.modification_time).hour && !GetTimeDifferenceNow(item.modification_date, item.modification_time).day">{{GetTimeDifferenceNow(item.modification_date, item.modification_time).sec}} secondes</span>
+                            </span>
                         </v-card-subtitle>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -220,7 +233,7 @@ export default {
             token:"",
             ClrSnack:"error",
             index:0,
-            colorArray:["#333399","#6666cc","#19194d","#ff8080","#ff4d4d","#cc5200","#ff8533","#662900"],//"#1abc9c","#2ecc71","#3498db","#9b59b6","#34495e","#f1c40f","#16a085","#27ae60","#2980b9","#8e44ad","#2c3e50","#e67e22","#e74c3c","#7f8c8d"],
+            colorArray:["#333399","#6666cc","#19194d","#cc5200","#662900","#80000d"],//Color choice
             user: new User("email","username","id","","",""),
             newPost :"",
             resultMessage:"",
@@ -255,6 +268,35 @@ export default {
            else{
                document.location.href="/"
            }
+       },
+       GetTimeDifferenceNow(date, time){
+           let diff = {};
+           let postDate = date;
+           let postTime = time;
+           let completeDate = new Date (postDate + " " + postTime);
+          
+           let tmp = new Date - completeDate;
+           tmp = Math.floor(tmp/1000);             // number of seconds
+            diff.sec = tmp % 60;
+
+            tmp = Math.floor((tmp-diff.sec)/60);    // number of minutes
+            if (tmp>=1){
+                diff.min = tmp % 60;
+            }    
+
+            tmp = Math.floor((tmp-diff.min)/60);    // number of hours
+            if (tmp>=1){
+                diff.hour = tmp % 24;
+            }
+            
+
+            tmp = Math.floor((tmp-diff.hour)/24); // number of days
+            if (tmp>=1){
+                diff.day = tmp;
+            }  
+            console.log(diff.day)
+
+           return diff;
        },
         //Method to get 5 last posts
         getNumberOfPosts (){
@@ -297,7 +339,6 @@ export default {
             this.error = this.post = null;
             this.loading = true;
             this.load = false;
-            //let postsGetted =[];
             const getPostRequest = async () => {
                 return new Promise(resolve => {
                     try {
