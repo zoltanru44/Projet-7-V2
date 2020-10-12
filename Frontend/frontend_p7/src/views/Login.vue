@@ -70,7 +70,7 @@ export default {
       valid: false,
       snackbar: false,
       multiLine: true,
-      ClrSnack:"error",
+      ClrSnack:"grey",
       resultMessage:"",
       usernameRules: [
         v => !!v || 'Name is required',
