@@ -1,0 +1,41 @@
+CREATE DATABASE "DATABASENAME" CHARACTER SET 'utf8';
+use "DATABASENAME";
+CREATE TABLE users(
+id INT AUTO_INCREMENT,
+username VARCHAR(100) NOT NULL,
+email VARCHAR(100) NOT NULL,
+password VARCHAR(100) NOT NULL,
+role TINYINT NOT NULL DEFAULT(3),
+PRIMARY KEY (id))
+ENGINE=INNODB;
+CREATE TABLE posts(
+id INT AUTO_INCREMENT,
+id_author INT NOT NULL,
+date DATE NOT NULL,
+time TIME NOT NULL,
+text TEXT,
+modification_date DATE,
+modification_time TIME,
+CONSTRAINT fk_post_user
+    FOREIGN KEY (id_author)
+    REFERENCES users(id),
+PRIMARY KEY (id))
+ENGINE=INNODB;
+CREATE TABLE comments(
+id INT AUTO_INCREMENT,
+id_author INT NOT NULL,
+id_post INT NOT NULL,
+date DATE NOT NULL,
+time TIME NOT NULL,
+text TEXT,
+modification_date DATE,
+modification_time TIME,
+CONSTRAINT fk_comment_post
+    FOREIGN KEY (id_author)
+    REFERENCES posts(id)
+    ON DELETE CASCADE,
+CONSTRAINT fk_comment_user
+    FOREIGN KEY (id_post)
+    REFERENCES users(id),
+PRIMARY KEY (id))
+ENGINE=INNODB;
