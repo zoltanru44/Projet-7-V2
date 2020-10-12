@@ -202,7 +202,7 @@ exports.updateUser = (req, res, next) => {
                         console.log("responseUsername" + responseUsername);
                     }
                     //Change email
-                    if (req.body.new_email) {
+                    if (req.body.new_email && email_user !== req.body.new_email) {
                         //Check if the new email is free in database
                         responseEmail = await checkUpdateEmail(); //Await response from email
                         changeEmail = true;
