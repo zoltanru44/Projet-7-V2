@@ -46,8 +46,8 @@
                     :style="[{'background-color':colorArray[index]}]"
                     dark
                     >
-                        <v-card-text class="headline font-weight-bold">"{{item.text}}"</v-card-text>
-                        <v-card-subtitle>
+                        <v-card-text class="headline font-weight-bold white--text">"{{item.text}}"</v-card-text>
+                        <v-card-subtitle class="white--text">
                             <span v-if="item.username!==null">@{{item.username}}</span>
                             <span v-if="item.username==null">L'auteur à supprimé son compte,</span> 
                             <span v-if="!item.modification_date"><br/>publié il y a 
@@ -289,7 +289,6 @@ export default {
            let postDate = date;
            let postTime = time;
            let completeDate = new Date (postDate + " " + postTime);
-          
            let tmp = new Date - completeDate;
            tmp = Math.floor(tmp/1000);             // number of seconds
             diff.sec = tmp % 60;
@@ -297,20 +296,15 @@ export default {
             tmp = Math.floor((tmp-diff.sec)/60);    // number of minutes
             if (tmp>=1){
                 diff.min = tmp % 60;
-            }    
-
+            }
             tmp = Math.floor((tmp-diff.min)/60);    // number of hours
             if (tmp>=1){
                 diff.hour = tmp % 24;
             }
-            
-
             tmp = Math.floor((tmp-diff.hour)/24); // number of days
             if (tmp>=1){
                 diff.day = tmp;
             }  
-            console.log(diff.day)
-
            return diff;
        },
         //Method to get 5 last posts
@@ -648,4 +642,5 @@ export default {
 .v-btn{
     min-width: 15px !important;
 }
+
 </style>

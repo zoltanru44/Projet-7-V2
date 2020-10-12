@@ -4,6 +4,7 @@
         <img alt="logo-groupomania" src="../assets/icon-above-font.png" class="logo_groupo">
         <h1>Bienvenue sur GroupoNetwork !</h1>
         <h2>Avant de pouvoir partager avec vos collègues, merci de créer un compte.</h2>
+        <!--SIGNUP FORM-->
         <v-form  class="signup__form col-md-4" id="signup__form"
         ref="form"
         v-model="valid"
@@ -75,7 +76,7 @@ export default {
       valid: false,
       snackbar: false,
       multiLine: true,
-      ClrSnack:"error",
+      ClrSnack:"grey",
       resultMessage:"",
       text: "",
       lazy:false,
@@ -83,35 +84,24 @@ export default {
         v => !!v || 'E-mail is required',
         v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
       ],
-      
       usernameRules: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 10) || 'Name must be less than 10 characters',
       ],
-      
       passwordRules: [
         v => !!v || 'Password is required',
         v => (v && v.length <= 10) || 'Password must be less than 10 characters',
       ],
-
     }
       },
-       mounted (){
-        console.log(this.$store.state.isConnected)
-      },
     methods: {
-      redirection () {
-        setTimeout(function(){
-                    document.location.href="/blackboard"
-                }, 4000);
-      },
-      validate_signup () {
+      validate_signup () { //Function to créate new user in database
         const newUser = {
-          username: this.user.username,
+            username: this.user.username,
             email:this.user.email,
             password: this.user.password,
         }
-        const sendPostRequest = async () => {
+        const sendPostRequest = async () => {//Request POST new user
           try {
             const resp = await axios.post('http://localhost:3000/api/auth/signup', newUser);
             this.resultMessage=resp.data.message
@@ -122,8 +112,6 @@ export default {
             if (resp.status ==200) {
               this.ClrSnack = "error";
             }
-            console.log(resp.data.message);
-            console.log(this.resultMessage);
           }
           catch (err){
             console.log(err);
@@ -132,12 +120,12 @@ export default {
         sendPostRequest ();
         this.snackbar = true;
       }, 
-      login_delay () {
+      login_delay () { //Function to connect the new user 
         const newUser = {
           username: this.user.username,
           password: this.user.password,
         }
-        const sendPostRequest = async () => {
+        const sendPostRequest = async () => {//POST request to log new user
           try {
             const resp = await axios.post('http://localhost:3000/api/auth/login', newUser);
             this.resultMessage=`Vous êtes connecté sous le nom de ${resp.data.username}`
@@ -162,10 +150,7 @@ export default {
             }
             if (resp.status ==200) {
               this.resultMessage= resp.data.err;
-              
             }
-            console.log(resp.data.message);
-            console.log(this.resultMessage);
           }
           catch (err){
             console.log(err);

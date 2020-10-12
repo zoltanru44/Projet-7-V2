@@ -122,10 +122,12 @@ exports.updateUser = (req, res, next) => {
                         //New name = old name
                         if (username_user == req.body.new_username) {
                             console.log("nom d\'utilisateur non différent!")
+                            return res.status(200).json({ message: "nom d\'utilisateur non différent!" });
 
                         };
                         if (rows.length >= 1) { //If there is already username in database
                             console.log("Nom d\'utilisateur déjà utilisé")
+                            return res.status(200).json({ message: "nom d\'utilisateur déjà utilisé" });
                         }
                         //The name is free and new name is different than the old
                         else if (username_user !== req.body.new_username) {

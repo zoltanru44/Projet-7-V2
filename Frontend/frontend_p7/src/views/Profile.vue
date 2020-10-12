@@ -280,7 +280,7 @@ export default {
                 this.user.new_password = "";
             }
             //Update local storage
-            this.getUserDB();
+            //this.getUserDB();
         } else {
             this.snackbar = true;
             this.ClrSnack = "error";
