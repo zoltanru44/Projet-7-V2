@@ -211,7 +211,8 @@ export default {
                         .then (function(response) {
                             console.log("Requête OK");
                             console.log(response.status);
-                            console.log(response.message);
+                            console.log(response);
+                            console.log(response.data.message);
                             if (response.status==201){
                                 sessionStorage.setItem("resultCode","201")
                                 sessionStorage.setItem("resultMessage","Les données de l'utilisateur ont été mises à jour.")
@@ -224,8 +225,8 @@ export default {
                             }
                             else{
                                 sessionStorage.setItem("resultCode","200")
-                                sessionStorage.setItem("resultMessage","Les données de l'utilisateur n'ont pas pu être mises à jour. Merci de vérifier vos informations.")
-                                resolve({message:"l'utilisateur n'a pas pu être mis à jour"}) 
+                                sessionStorage.setItem("resultMessage",`Les données de l'utilisateur n'ont pas pu être mises à jour. ${response.data.message}`)
+                                resolve({message:`L'utilisateur n'a pas pu être mis à jour. ${response.data.message}`}) 
                             }
                         })
                         .catch(function(error) {
@@ -280,7 +281,7 @@ export default {
                 this.user.new_password = "";
             }
             //Update local storage
-            //this.getUserDB();
+            this.getUserDB();
         } else {
             this.snackbar = true;
             this.ClrSnack = "error";

@@ -1,17 +1,13 @@
 # Projet-7- Réseau social Groupomania
 ## Technologies utilisées
 Front-end :
-- Vue
+- Vue.js
 - Vue-router
 - Vuetify
 - VueX
 - Axios
 Back-end :
-- Bcrypt
-- Body-parser
-- Dotenv
 - Express
-- Jsonwebtoken
 - MySQL
 
 ## Création de la base de donnée SQL

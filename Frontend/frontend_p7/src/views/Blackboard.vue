@@ -75,7 +75,7 @@
                                 <v-icon @click="dialog_comment = true, IDpostToComment = item.id, commentToAdd='' ">mdi-chat-plus-outline</v-icon>
                             </v-btn>
                             <v-spacer></v-spacer>
-                            <v-btn icon v-if="item.comments.length!==0" @click="commentActive=item.id, show =!show">
+                            <v-btn class="chevron_comment" icon v-if="item.comments.length!==0" @click="commentActive=item.id, show =!show">
                               <v-icon>{{ (commentActive==item.id && show) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
                             </v-btn>
                             
@@ -641,6 +641,10 @@ export default {
 }
 .v-btn{
     min-width: 15px !important;
+}
+.chevron_comment{
+    position: absolute;
+    right: 5px;
 }
 
 </style>

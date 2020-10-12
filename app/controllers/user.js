@@ -93,130 +93,177 @@ exports.login = (req, res, next) => {
 };
 //UPDATEUSER CONTROLLER
 exports.updateUser = (req, res, next) => {
-    let userNameUpdate = false;
-    let emailUpdate = false;
-    let passwordUpdate = false;
+    let userNameUpdate;
+    let emailUpdate;
+    let passwordUpdate;
+    let username_user = "";
+    let email_user = "";
+    let password_user = "";
+    let changeUser = "false";
+    let responseUsername = "";
+    let changeEmail = "false";
+    let responseEmail = "";
+
     const sql_get_user = `SELECT * FROM users WHERE id='${req.body.id}'`
+        //check and update username
+    const checkUpdateUsername = async() => {
+        return new Promise(resolve => {
+            //Change username
+            //Check if the new username is free in database
+            const sql_get_user = `SELECT * FROM users WHERE username='${req.body.new_username}'`
+            connection.query(sql_get_user, (err, rows) => {
+                if (err) {
+                    console.error('error connecting: ' + err.stack);
+                    return res.status(500);
+                }
+                //New name = old name
+                if (username_user == req.body.new_username) {
+                    console.log("nom d\'utilisateur non différent!")
+                    userNameUpdate = false;
+                    resolve(userNameUpdate)
+
+                };
+                if (rows.length >= 1) { //If there is already username in database
+                    console.log("Nom d\'utilisateur déjà utilisé")
+                    userNameUpdate = false;
+                    resolve(userNameUpdate)
+                }
+                //The name is free and new name is different than the old
+                else {
+                    console.log('username différent');
+                    const sql_update_username = `UPDATE users SET username="${req.body.new_username}" WHERE id="${req.body.id}"`;
+                    connection.query(sql_update_username, function(err, result) {
+                        if (err) {
+                            console.error('error connecting: ' + err.stack);
+                            return res.status(400).json({ err });
+                        }
+                        console.log("nom d\'utilisateur mis à jour!")
+                        userNameUpdate = true;
+                        console.log(userNameUpdate);
+                        resolve(userNameUpdate)
+                    })
+                }
+            })
+        })
+    }
+    const checkUpdateEmail = async() => {
+        return new Promise(resolve => {
+            const sql_get_mail = `SELECT * FROM users WHERE email='${req.body.new_email}'`
+            connection.query(sql_get_mail, (err, rows) => {
+                if (err) {
+                    console.error('error connecting: ' + err.stack);
+                    return res.status(500);
+                }
+                //New email = old email
+                if (email_user == req.body.new_email) {
+                    console.log("email non différent!");
+                    emailUpdate = false;
+                    resolve(emailUpdate);
+                };
+                //If there is already email in database
+                if (rows.length >= 1) {
+                    console.log("email déjà utilisé");
+                    emailUpdate = false;
+                    resolve(emailUpdate);
+                }
+                //The email is free and new email is different than the old
+                else {
+                    console.log('email différent');
+                    const sql_update_email = `UPDATE users SET email="${req.body.new_email}" WHERE id="${req.body.id}"`;
+                    connection.query(sql_update_email, function(err, result) {
+                        if (err) {
+                            console.error('error connecting: ' + err.stack);
+                            return res.status(400).json({ err });
+                        }
+                        console.log("email mis à jour!")
+                        emailUpdate = true;
+                        resolve(emailUpdate);
+                    })
+                }
+            })
+        })
+    }
     connection.query(sql_get_user, (err, rows) => {
         if (err) {
             console.error('error connecting: ' + err.stack);
             return res.status(400).json({ err });
         }
         console.log(rows);
-
-        const username_user = rows[0].username;
-        const email_user = rows[0].email;
-        const password_user = rows[0].password;
-
-        bcrypt.compare(req.body.password, password_user, function(err, result) {
-            if (result == true) {
-                if (req.body.new_username) {
-                    //Change username
-                    //Check if the new username is free in database
-                    const sql_get_user = `SELECT * FROM users WHERE username='${req.body.new_username}'`
-                    connection.query(sql_get_user, (err, rows) => {
-                        if (err) {
-                            console.error('error connecting: ' + err.stack);
-                            return res.status(500);
-                        }
-                        //New name = old name
-                        if (username_user == req.body.new_username) {
-                            console.log("nom d\'utilisateur non différent!")
-                            return res.status(200).json({ message: "nom d\'utilisateur non différent!" });
-
-                        };
-                        if (rows.length >= 1) { //If there is already username in database
-                            console.log("Nom d\'utilisateur déjà utilisé")
-                            return res.status(200).json({ message: "nom d\'utilisateur déjà utilisé" });
-                        }
-                        //The name is free and new name is different than the old
-                        else if (username_user !== req.body.new_username) {
-                            console.log('username différent');
-                            const sql_update_username = `UPDATE users SET username="${req.body.new_username}" WHERE id="${req.body.id}"`;
-                            connection.query(sql_update_username, function(err, result) {
-                                if (err) {
-                                    console.error('error connecting: ' + err.stack);
-                                    return res.status(400).json({ err });
-                                }
-                                console.log("nom d\'utilisateur mis à jour!")
-                                userNameUpdate = true;
-                                console.log(userNameUpdate)
-                            })
-                        }
-                    })
-                }
-                //Change email
-                if (req.body.new_email) {
-                    //Check if the new email is free in database
-                    const sql_get_mail = `SELECT * FROM users WHERE email='${req.body.new_email}'`
-                    connection.query(sql_get_mail, (err, rows) => {
-                        if (err) {
-                            console.error('error connecting: ' + err.stack);
-                            return res.status(500);
-                        }
-                        //New email = old email
-                        if (email_user == req.body.new_email) {
-                            console.log("email non différent!")
-                        };
-                        //If there is already email in database
-                        if (rows.length >= 1) {
-                            console.log("email déjà utilisé")
-                        }
-                        //The email is free and new email is different than the old
-                        else if (email_user !== req.body.new_email) {
-                            console.log('email différent');
-                            const sql_update_email = `UPDATE users SET email="${req.body.new_email}" WHERE id="${req.body.id}"`;
-                            connection.query(sql_update_email, function(err, result) {
-                                if (err) {
-                                    console.error('error connecting: ' + err.stack);
-                                    return res.status(400).json({ err });
-                                }
-                                console.log("email mis à jour!")
-                                emailUpdate = true;
-                            })
-                        }
-                    })
-                }
-                //Change password
-                if (req.body.new_password && req.body.password) {
-                    if (req.body.new_password !== req.body.password) {
-                        console.log('password à changer');
-                        bcrypt.compare(req.body.password, password_user, function(err, result) {
-                            if (result == true) {
-                                console.log('mdp ok');
-                                bcrypt.hash(req.body.new_password, 10, function(err, hash) {
-                                    if (err) {
-                                        console.error('error connecting: ' + err.stack);
-                                        return res.status(400).json({ error });
-                                    }
-                                    const sql_update_password = `UPDATE users SET password="${hash}" WHERE id="${req.body.id}"`;
-                                    connection.query(sql_update_password, function(err, result) {
+        username_user = rows[0].username;
+        email_user = rows[0].email;
+        password_user = rows[0].password;
+        const updateUsernameMailPassword = async function() {
+            bcrypt.compare(req.body.password, password_user, async function(err, result) {
+                if (result == true) {
+                    if (req.body.new_username && username_user !== req.body.new_username) {
+                        responseUsername = await checkUpdateUsername();
+                        changeUser = true;
+                        //Await response from username
+                        console.log("responseUsername" + responseUsername);
+                    }
+                    //Change email
+                    if (req.body.new_email) {
+                        //Check if the new email is free in database
+                        responseEmail = await checkUpdateEmail(); //Await response from email
+                        changeEmail = true;
+                        console.log("responseEmail" + responseEmail)
+                    }
+                    //Change password
+                    if (req.body.new_password && req.body.password) {
+                        if (req.body.new_password !== req.body.password) {
+                            console.log('password à changer');
+                            bcrypt.compare(req.body.password, password_user, function(err, result) {
+                                if (result == true) {
+                                    console.log('mdp ok');
+                                    bcrypt.hash(req.body.new_password, 10, function(err, hash) {
                                         if (err) {
                                             console.error('error connecting: ' + err.stack);
                                             return res.status(400).json({ error });
                                         }
-                                        console.log('connected as id ' + connection.threadId);
-                                        console.log('Mot de passe changé');
-                                        passwordUpdate = true;
+                                        const sql_update_password = `UPDATE users SET password="${hash}" WHERE id="${req.body.id}"`;
+                                        connection.query(sql_update_password, function(err, result) {
+                                            if (err) {
+                                                console.error('error connecting: ' + err.stack);
+                                                return res.status(400).json({ error });
+                                            }
+                                            console.log('connected as id ' + connection.threadId);
+                                            console.log('Mot de passe changé');
+                                            passwordUpdate = true;
+                                        })
                                     })
-                                })
-                            } else {
-                                console.log("c'est faux");
-                            }
-                        })
+                                } else {
+                                    console.log("c'est faux");
+                                }
+                            })
+                        }
+                    } else {
+                        console.log("Merci de rentrer l'ancien et le nouveau mot de passe")
                     }
+                    console.log("mot de passe ok")
+                    console.log(responseUsername);
+                    console.log("changeUser " + changeUser);
+                    console.log("changeEmail " + changeEmail);
+                    console.log("responseUsername " + responseUsername);
+                    console.log("responseEmail " + responseEmail)
+                    if (responseUsername == false && changeUser == true) {
+                        console.log("prb username");
+                        return res.status(200).json({ message: "Nom d'utilisateur déjà utilisé" });
+                    }
+                    if (responseEmail == false && changeEmail == true) {
+                        console.log("prb email");
+                        return res.status(200).json({ message: "Email déjà utilisé" });
+                    } else {
+                        console.log("tout est ok");
+                        return res.status(201).json({ message: "Utilisateur mis à jour" });
+                    }
+
                 } else {
-                    console.log("Merci de rentrer l'ancien et le nouveau mot de passe")
+                    console.log("mauvais mot de passe")
+                    return res.status(202).json({ message: "badPassword" });
                 }
-                console.log("mot de passe ok")
-                return res.status(201).json({ message: "Utilisateur mis à jour" });
-            } else {
-                console.log("mauvais mot de passe")
-                return res.status(202).json({ message: "badPassword" });
-            }
-        })
-
-
+            })
+        }
+        updateUsernameMailPassword();
     })
 };
 
