@@ -388,7 +388,6 @@ export default {
                //Store in session storage
                const postsGetted= sessionStorage.getItem("posts");
                 this.posts =JSON.parse(postsGetted);
-                console.log(this.posts);
            })
         },
         //METHOD TO SEND NEW POST 
@@ -400,8 +399,6 @@ export default {
           publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
           publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
         };
-        console.log(date);
-        console.log(newPost)
         //Axios request
         const sendPostRequest = async () => {
             
@@ -454,8 +451,6 @@ export default {
           new_publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
           new_publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
         };
-      
-        console.log(newPost)
         //Axios PUT request
         const sendPostRequest = async () => {
             try {
