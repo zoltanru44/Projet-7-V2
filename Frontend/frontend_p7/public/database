@@ -16,9 +16,6 @@ time TIME NOT NULL,
 text TEXT,
 modification_date DATE,
 modification_time TIME,
-CONSTRAINT fk_post_user
-    FOREIGN KEY (id_author)
-    REFERENCES users(id),
 PRIMARY KEY (id))
 ENGINE=INNODB;
 CREATE TABLE comments(
@@ -34,8 +31,5 @@ CONSTRAINT fk_comment_post
     FOREIGN KEY (id_post)
     REFERENCES posts(id)
     ON DELETE CASCADE,
-CONSTRAINT fk_comment_user
-    FOREIGN KEY (id_author)
-    REFERENCES users(id),
 PRIMARY KEY (id))
 ENGINE=INNODB;
