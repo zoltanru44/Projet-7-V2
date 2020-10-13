@@ -572,7 +572,7 @@ export default {
                     }
                 })
                 if (resp.status == 201) {
-                    this.resultMessage=`Nouveau text posté !`;
+                    this.resultMessage=`Nouveau texte posté !`;
                     this.ClrSnack = "success";
                 }else {
                     this.resultMessage="Le message n'a pas pu être posté, merci de recommencer ultérieurement.";
