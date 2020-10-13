@@ -302,9 +302,6 @@ export default {
                     this.resultCode = 201;
                     this.dialog= false;
                     this.ClrSnack = "success";
-                    console.log(`L'utilisateur a bien été supprimé`);
-                    console.log(resp.data.message);
-                    console.log(this.resultMessage);
                     setTimeout(function(){
                     document.location.href="/logout"
                 }, 3000);
@@ -339,10 +336,8 @@ export default {
                 email : resp.data.email,
                 token : resp.data.token
             }
-            console.log(resp);
             let user_string = JSON.stringify(user);
             sessionStorage.setItem("user", user_string);
-            console.log(sessionStorage.getItem("user"));
             this.user.password = "";
             return {message:`Mise à jour des données de ${resp.data.username}`}
             }
