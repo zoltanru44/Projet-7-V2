@@ -14,6 +14,7 @@
                     class="inputNotRed"
                     ></v-text-field>
                     <div class="text-center" id="btn_snackbar">
+                        <!--Post comment btn + snackbar -->
                     <v-btn
                       :disabled= !valid
                       color="success"
@@ -51,18 +52,21 @@
                             <span v-if="item.username!==null">@{{item.username}}</span>
                             <span v-if="item.username==null">L'auteur à supprimé son compte,</span> 
                             <span v-if="!item.modification_date"><br/>publié il y a 
+                            <!--all condition to display days/hours/minutes/seconds-->
                             <span v-if="GetTimeDifferenceNow(item.date, item.time).day">{{GetTimeDifferenceNow(item.date, item.time).day}} jours et </span>
                             <span v-if="GetTimeDifferenceNow(item.date, item.time).hour">{{GetTimeDifferenceNow(item.date, item.time).hour}} heure<span v-if="GetTimeDifferenceNow(item.date, item.time).hour>1">s</span></span>
                             <span v-if="GetTimeDifferenceNow(item.date, item.time).min && !GetTimeDifferenceNow(item.date, item.time).hour && !GetTimeDifferenceNow(item.date, item.time).day">{{GetTimeDifferenceNow(item.date, item.time).min}} minute<span v-if="GetTimeDifferenceNow(item.date, item.time).min>1">s</span> et </span>
                             <span v-if="GetTimeDifferenceNow(item.date, item.time).sec && !GetTimeDifferenceNow(item.date, item.time).hour && !GetTimeDifferenceNow(item.date, item.time).day">{{GetTimeDifferenceNow(item.date, item.time).sec}} secondes</span>
                             </span>
                             <span v-if="item.modification_date"><br/>modifié il y a 
+                            <!--all condition to display days/hours/minutes/seconds-->
                             <span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).day">{{GetTimeDifferenceNow(item.modification_date, item.modification_time).day}} jours et </span>
                             <span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).hour">{{GetTimeDifferenceNow(item.modification_date, item.modification_time).hour}} heure<span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).hour>1">s</span></span>
                             <span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).min && !GetTimeDifferenceNow(item.modification_date, item.modification_time).hour && !GetTimeDifferenceNow(item.modification_date, item.modification_time).day">{{GetTimeDifferenceNow(item.modification_date, item.modification_time).min}} minute<span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).min>1">s</span> et </span>
                             <span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).sec && !GetTimeDifferenceNow(item.modification_date, item.modification_time).hour && !GetTimeDifferenceNow(item.modification_date, item.modification_time).day">{{GetTimeDifferenceNow(item.modification_date, item.modification_time).sec}} secondes</span>
                             </span>
                         </v-card-subtitle>
+                        <!--btn to modify/delete or comment-->
                         <v-card-actions>
                             <v-spacer></v-spacer>
                             <v-btn v-show="item.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif=true, IDpostToModify = item.id, textToModify=item.text">
@@ -78,7 +82,6 @@
                             <v-btn class="chevron_comment" icon v-if="item.comments.length!==0" @click="commentActive=item.id, show =!show">
                               <v-icon>{{ (commentActive==item.id && show) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
                             </v-btn>
-                            
                         </v-card-actions>
                         <!--Comments part -->
                         <v-expand-transition>
@@ -89,6 +92,7 @@
                               {{items.text}}
                             </v-card-text>
                             <v-card-text class="caption text-right">
+                                <!--btn to modify or delete comment-->
                                 <v-row align="center" justify="end">
                                   <v-icon class="mr-1" v-show="items.id_author == user.id || user.user_role ==1 || user.user_role ==2" @click="dialog_modif_com=true, IDcommentToModify = items.id, textToModify=items.text">mdi-comment-edit-outline</v-icon>
                                   <span class="subheading"> </span>
@@ -99,12 +103,14 @@
                                   <span v-if="items.username!==null">@{{items.username}}</span>
                             <span v-if="items.username==null">L'auteur à supprimé son compte,</span> 
                             <span v-if="!items.modification_date"><br/>publié il y a 
+                            <!--all condition to display days/hours/minutes/seconds-->
                             <span v-if="GetTimeDifferenceNow(items.date, items.time).day">{{GetTimeDifferenceNow(items.date, items.time).day}} jours et </span>
                             <span v-if="GetTimeDifferenceNow(items.date, items.time).hour">{{GetTimeDifferenceNow(items.date, items.time).hour}} heure<span v-if="GetTimeDifferenceNow(items.date, items.time).hour>1">s</span></span>
                             <span v-if="GetTimeDifferenceNow(items.date, items.time).min && !GetTimeDifferenceNow(items.date, items.time).hour && !GetTimeDifferenceNow(items.date, items.time).day">{{GetTimeDifferenceNow(items.date, items.time).min}} minute<span v-if="GetTimeDifferenceNow(items.date, items.time).min>1">s</span> et </span>
                             <span v-if="GetTimeDifferenceNow(items.date, items.time).sec && !GetTimeDifferenceNow(items.date, items.time).hour && !GetTimeDifferenceNow(items.date, items.time).day">{{GetTimeDifferenceNow(items.date, items.time).sec}} secondes</span>
                             </span>
                             <span v-if="items.modification_date"><br/>modifié il y a 
+                            <!--all condition to display days/hours/minutes/seconds-->
                             <span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).day">{{GetTimeDifferenceNow(items.modification_date, items.modification_time).day}} jours et </span>
                             <span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).hour">{{GetTimeDifferenceNow(items.modification_date, items.modification_time).hour}} heure<span v-if="GetTimeDifferenceNow(item.modification_date, item.modification_time).hour>1">s</span></span>
                             <span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).min && !GetTimeDifferenceNow(items.modification_date, items.modification_time).hour && !GetTimeDifferenceNow(items.modification_date, items.modification_time).day">{{GetTimeDifferenceNow(items.modification_date, items.modification_time).min}} minute<span v-if="GetTimeDifferenceNow(items.modification_date, items.modification_time).min>1">s</span> et </span>
@@ -116,8 +122,8 @@
                           </div>
                         </v-expand-transition>
                     </v-card>
-                    
                 </div>
+                <!--btn for other pages and number of posts-->
                 <div class="text-center">
                         <v-btn class="mx-2" dark color="primary" v-if="(page>=2)" @click="page--,shuffleArray(), getAllPosts()">
                             <v-icon >mdi-arrow-left-circle-outline</v-icon>
@@ -209,7 +215,6 @@
         </div>
     </div>
 </template>
-
 <script>
 //import Post from "../models/post";
 import User from "../models/user";
@@ -265,6 +270,7 @@ export default {
             this.getUser();
     },
     methods: {
+        //Method to shuffle color array of posts
         shuffleArray(){
             let array = this.colorArray;
             for (var i = array.length - 1; i > 0; i--) {  
@@ -276,6 +282,7 @@ export default {
             } 
             return array; 
         },
+        //Method to verify if there is a user in session storage
        verificationLog(){
            if (sessionStorage.getItem("user")){
                console.log("l'utilisateur est bien connecté")
@@ -284,6 +291,7 @@ export default {
                document.location.href="/"
            }
        },
+       //method to calculate difference of time between a date / time and now
        GetTimeDifferenceNow(date, time){
            let diff = {};
            let postDate = date;
@@ -292,7 +300,6 @@ export default {
            let tmp = new Date - completeDate;
            tmp = Math.floor(tmp/1000);             // number of seconds
             diff.sec = tmp % 60;
-
             tmp = Math.floor((tmp-diff.sec)/60);    // number of minutes
             if (tmp>=1){
                 diff.min = tmp % 60;
@@ -307,9 +314,8 @@ export default {
             }  
            return diff;
        },
-        //Method to get 5 last posts
+        //Method with promise to get all posts and return the total number of posts
         getNumberOfPosts (){
-            //let postsGetted =[];
             const getPostRequest = async () => {
                 return new Promise(resolve => {
                     try {
@@ -326,7 +332,6 @@ export default {
                         resolve(numberOfPosts) ;
                     }
                     })
-                    
                 }
                 catch (err){
                     console.log(err);
@@ -342,12 +347,14 @@ export default {
                const postsGetted= sessionStorage.getItem("numberOfPosts");
                 this.numberOfPosts =JSON.parse(postsGetted);
                 this.maxPages = Math.ceil(this.numberOfPosts/5);
-           }) 
+           })
         },
+        //Method to get last 5 posts
         getAllPosts () {
             this.error = this.post = null;
             this.loading = true;
             this.load = false;
+            //promise to get 5 last posts and comments
             const getPostRequest = async () => {
                 return new Promise(resolve => {
                     try {
@@ -375,14 +382,14 @@ export default {
             const loadPostFunction = async function(){
                 let awaitReq = await getPostRequest();
                 return awaitReq
-               
             }
            loadPostFunction ()
            .then(()=>{
+               //Store in session storage
                const postsGetted= sessionStorage.getItem("posts");
                 this.posts =JSON.parse(postsGetted);
                 console.log(this.posts);
-           }) 
+           })
         },
         //METHOD TO SEND NEW POST 
         sendNewPost () {
@@ -425,6 +432,7 @@ export default {
         sendPostRequest ();
         this.snackbar = true;
       },
+      //Method to get user informations from session storage
         getUser (){
             //Get id and token of the user with sessionStorage
             let localUser_string = sessionStorage.getItem("user");
@@ -435,8 +443,8 @@ export default {
             this.user.id = `${localUser.user_id}`;
             this.user.user_role = localUser.user_role;
             this.token = localUser.token
-            console.log(localUser);
         },
+        //Method to modify a post in database
         modifyPost () {
         let date = new Date();// New date
         const newPost = {//body request
@@ -448,7 +456,7 @@ export default {
         };
       
         console.log(newPost)
-        //Axios request
+        //Axios PUT request
         const sendPostRequest = async () => {
             try {
                 const resp = await axios({
@@ -460,9 +468,6 @@ export default {
                 if (resp.status == 201) {
                     this.resultMessage=`Nouveau text posté !`;
                     this.ClrSnack = "success";
-                    console.log(`nouveau post ajouté`);
-                    console.log(resp.data.message);
-                    console.log(this.resultMessage);
                 }else {
                     this.resultMessage="Le message n'a pas pu être posté, merci de recommencer ultérieurement.";
                 }
@@ -475,11 +480,12 @@ export default {
         sendPostRequest ();
         this.dialog_modif = false;
         this.snackbar = true;
-        this.getAllPosts ();
+        this.getAllPosts ();//To actualise all posts
         
         },
+        //Method to delete a post
         deletePost () {
-        //Axios request
+        //Axios DELETE request
         const sendPostRequest = async () => {
             try {
                 const resp = await axios({
@@ -495,9 +501,6 @@ export default {
                     this.resultMessage=`Post supprimé !`;
                     this.dialog= false;
                     this.ClrSnack = "success";
-                    console.log(`Le post a bien été supprimé`);
-                    console.log(resp.data.message);
-                    console.log(this.resultMessage);
                 }else {
                     this.resultMessage="Le message n'a pas pu être supprimé, merci de recommencer ultérieurement.";
                 }
@@ -511,16 +514,17 @@ export default {
         this.snackbar = true;
         this.getAllPosts ();
         },
+        //Method to add a comment for a post
         commentPost () {
         let date = new Date();// New date
-        //Axios request
+        //Axios POST request
         const sendPostRequest = async () => {
             const newComment={
                 userId: this.user.id,
-                        id_post: this.IDpostToComment,
-                        text: this.commentToAdd,
-                        publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
-                        publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
+                id_post: this.IDpostToComment,
+                text: this.commentToAdd,
+                publication_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
+                publication_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
             }
             try {
                 const resp = await axios({
@@ -531,7 +535,7 @@ export default {
                         newComment
                     }
                 })
-                if (resp.status == 201) {
+                if (resp.status == 201) { //If OK
                     this.resultMessage=`Commentaire ajouté !`;
                     this.dialog_comment= false;
                     this.ClrSnack = "success";
@@ -550,6 +554,7 @@ export default {
         this.snackbar = true;
         this.getAllPosts ();
         },
+        //Method to modify a comment
         modifyComment () {
         let date = new Date();// New date
         const newComment = {//body request
@@ -559,9 +564,8 @@ export default {
           new_comment_date: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`,
           new_comment_time: `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
         };
-      
         console.log(newComment)
-        //Axios request
+        //Axios PUT request
         const sendcommentRequest = async () => {
             try {
                 const resp = await axios({
@@ -575,9 +579,6 @@ export default {
                 if (resp.status == 201) {
                     this.resultMessage=`Nouveau text posté !`;
                     this.ClrSnack = "success";
-                    console.log(`Commentaire modifié`);
-                    console.log(resp.data.message);
-                    console.log(this.resultMessage);
                 }else {
                     this.resultMessage="Le message n'a pas pu être posté, merci de recommencer ultérieurement.";
                 }
@@ -590,11 +591,11 @@ export default {
         sendcommentRequest ();
         this.dialog_modif_com = false;
         this.snackbar = true;
-        //this.getAllPosts ();
         
         },
+        //Method to delete a comment
         deleteComment () {
-        //Axios request
+        //Axios DELETE request
         const sendcommentRequest = async () => {
             try {
                 const resp = await axios({
@@ -623,7 +624,6 @@ export default {
         this.dialog_com = false;
         this.snackbar = true;
         this.getAllPosts ();
-        
         },
     },
 }
@@ -646,5 +646,4 @@ export default {
     position: absolute;
     right: 5px;
 }
-
 </style>

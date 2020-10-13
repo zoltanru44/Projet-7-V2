@@ -100,9 +100,8 @@ export default {
           try {
             const resp = await axios.post('http://localhost:3000/api/auth/login', newUser);
             this.resultMessage=`Vous êtes connecté sous le nom de ${resp.data.username}`
-            if (resp.status == 201) {
-              this.ClrSnack = "success";
-              console.log(`Vous êtes connecté sous le nom de ${resp.data.username}`);
+            if (resp.status == 201) { //If connected
+              this.ClrSnack = "success"
             let user= {
                 userName : resp.data.username,
                 user_id : resp.data.userId,
@@ -110,22 +109,17 @@ export default {
                 email : resp.data.email,
                 token : resp.data.token
             }
-            console.log(resp);
             let user_string = JSON.stringify(user);
-            sessionStorage.setItem("user", user_string);
-            console.log(sessionStorage.getItem("user"));
-            let payload = {'token': resp.data.token,'username': resp.data.username, 'userRole': resp.data.userRole}
-            console.log(payload);
-            setTimeout(function(){
+            sessionStorage.setItem("user", user_string);//Save user in sessionstorage
+            setTimeout(function(){ //Time out to go to blackboard
                     document.location.href="/blackboard"
                 }, 3000);
             return {message:`Vous êtes connecté sous le nom de ${resp.data.username}`}
             }
-            if (resp.status ==200) {
+            if (resp.status ==200) {//Request is ok but can not be connected
               this.resultMessage= resp.data.err;
               this.ClrSnack = "error";
             }
-            console.log(resp.data.message);
             console.log(this.resultMessage);
           }
           catch (err){
@@ -154,7 +148,6 @@ export default {
         }
         &__input{
             text-align: center;
-            //border-radius: 25% 10%;
         }
     }
 }

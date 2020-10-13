@@ -4,14 +4,17 @@
             <v-row
             align="center" justify="center">
             <v-col cols="10" md="6" class="elevation-10 rounded">
+                <!--Rounded avatar with initials -->
                 <v-avatar color="teal" size="48">
                     <span class="white--text headline">{{initiales}}</span>
                 </v-avatar>
+                <!--Information about user -->
                 <v-list-item>
                         <v-list-item-content>
                             <v-list-item-title class="title">Vous êtes connectés sous le nom de <br/> {{user.username}}</v-list-item-title>
                             <v-list-item-subtitle>Compte <span v-if="user.role ==3">Utilisateur</span><span v-if="user.role ==2">Modérateur</span><span v-if="user.role ==1">Administrateur</span></v-list-item-subtitle>
                         <div cols="8" md="10">
+                            <!--Delete btn-->
                             <v-btn
                             :disabled="!valid"
                             color="error"
@@ -34,7 +37,7 @@
                     </v-dialog>
                         </v-list-item-content>
                     </v-list-item>
-           
+            <!--Form-->
                 <v-form ref="form"
                 v-model="valid">
                     <v-text-field
@@ -53,8 +56,8 @@
                         :rules="oldPasswordRules"
                         label="Mot de passe actuel"
                         type="password">
-                        
                     </v-text-field>
+                    <!--checkbox if user want to change password-->
                     <v-checkbox
                     v-model="changePsw"
                     label="Changer le mot de passe"
@@ -67,6 +70,7 @@
                         type="password">
                     </v-text-field>
                 </v-form>
+                <!--Btn to validate form-->
                 <v-btn
                 :disabled="!valid"
                 color="success"
@@ -74,12 +78,12 @@
                 @click="UpdateUser(),snackbar = true">
                 Valider
                 </v-btn>
+                <!--Snackbar with message result-->
                <v-snackbar
                       v-model="snackbar"
                       v-bind:color=ClrSnack
                       :multi-line="multiLine"
                       :timeout="4000"
-                      
                     >
                     {{resultMessage}}
                       <span v-if="updateName == true">Nom d'utilisateur mis à jour<br/></span>
@@ -95,15 +99,12 @@
                       </template>
                     </v-snackbar>
             </v-col>
-            
             </v-row>
-            
         </v-container>
     </div>
 </template>
 
 <script>
-
 import User from "../models/user_update";
 const axios = require('axios');
 export default {
@@ -163,13 +164,14 @@ export default {
             this.currentUser.role = localUser.user_role;
             this.currentUser.id = localUser.user_id;
         },
+        //Method to update user informations
         UpdateUser () {
             //Get information with sessionStorage
             let localUser_string = sessionStorage.getItem("user");
             const localUser = JSON.parse(localUser_string);
             let awaitGetUser;
             let putInformations;
-            //Get information from database
+            //Get user information from database
             const getUserInformations = async () => {
                 return new Promise(resolve => {
                     try {
@@ -188,9 +190,7 @@ export default {
                     }
                 })
             }
-            //Compare if username/email and/or password are different
-            //if (localUser.user_id != )
-            //If difference --> Axios request to update SQL Database
+            //Promise for PUT request
             const putUserInformation = async ()=> {
                 return new Promise(resolve => {
                     try{
@@ -209,10 +209,6 @@ export default {
                               }
                             })
                         .then (function(response) {
-                            console.log("Requête OK");
-                            console.log(response.status);
-                            console.log(response);
-                            console.log(response.data.message);
                             if (response.status==201){
                                 sessionStorage.setItem("resultCode","201")
                                 sessionStorage.setItem("resultMessage","Les données de l'utilisateur ont été mises à jour.")
@@ -238,12 +234,10 @@ export default {
                         }
                     })
             };
-        
     const getThanPostUser = async function(){
-        awaitGetUser = await getUserInformations();
-        putInformations = await putUserInformation ();
+        awaitGetUser = await getUserInformations(); //Get user informations
+        putInformations = await putUserInformation (); //Update user information
         console.log(awaitGetUser);
-        console.log(putInformations);
         return putInformations;
     }
     //Control if there is change to update
@@ -251,9 +245,6 @@ export default {
         getThanPostUser().then(()=> {
             this.resultMessage=sessionStorage.getItem("resultMessage");
             this.resultCode=sessionStorage.getItem("resultCode");
-            console.log(this.resultMessage);
-            console.log(this.resultCode);
-        //sessionStorage.removeItem("resultMessage");
         //Define who properties has been changed
         if (this.resultCode == 201){
             if(this.user.username !== this.currentUser.username){
@@ -292,8 +283,9 @@ export default {
         console.log("Pas de modification à apporter")
     }
     },
+        //Method to delete user from database
         DeleteUser () {
-        //Axios request
+        //Axios DELETE request
         const sendPostRequest = async () => {
             try {
                 const resp = await axios({
@@ -329,6 +321,7 @@ export default {
         sendPostRequest ();
         this.snackbar = true;
         },
+        //Method to get user from database to localstorage
     getUserDB () {
         const newUser = {
           username: this.user.username,
@@ -356,8 +349,6 @@ export default {
             if (resp.status ==200) {
               this.resultMessage= resp.data.err;
             }
-            console.log(resp.data.message);
-            console.log(this.resultMessage);
           }
           catch (err){
             console.log(err);

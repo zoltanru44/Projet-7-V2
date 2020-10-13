@@ -19,9 +19,10 @@ export default {
     mounted(){
         this.deconnexion();
     },
-
     methods: {
+        //Method to deconnect user
         deconnexion(){
+            //Reset session storage
             sessionStorage.removeItem("posts");
              sessionStorage.removeItem("postsComs");
             sessionStorage.removeItem("user");
@@ -32,10 +33,8 @@ export default {
                 console.log("Vous êtes encore connecté");
             }
             else{
-                this.$store.dispatch('deconnected');
                 this.connected = false;
                 console.log("Vous êtes maintenant déconnecté, vous allez être redirigé vers la page d'accueil")
-                console.log(this.$store.state.connexion.isConnected);
                 setTimeout(function(){
                     document.location.href="/"
                 }, 3000);

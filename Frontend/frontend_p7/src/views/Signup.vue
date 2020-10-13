@@ -1,6 +1,7 @@
 <template >
     <div class="signup">
         <v-container class="col-md-8 elevation-10 rounded">
+          <!--Header-->
         <img alt="logo-groupomania" src="../assets/icon-above-font.png" class="logo_groupo">
         <h1>Bienvenue sur GroupoNetwork !</h1>
         <h2>Avant de pouvoir partager avec vos collègues, merci de créer un compte.</h2>
@@ -15,13 +16,11 @@
           label="Email"
           required
           type="email"></v-text-field>
-
         <v-text-field
           v-model="user.username"
           :rules="usernameRules"
           label="Nom d'utilisateur"
           required></v-text-field>
-
           <v-text-field
           v-model="user.password"
           :rules="passwordRules"
@@ -34,23 +33,18 @@
       :disabled= !valid
       color="success"
       class="mr-4"
-      @click="validate_signup()"
-    >
+      @click="validate_signup()">
       Valider votre inscription
     </v-btn>
-
     <v-snackbar
       v-model="snackbar"
       v-bind:color=ClrSnack
-      :multi-line="multiLine"
-    >
+      :multi-line="multiLine">
       {{resultMessage}} 
-
       <template v-slot:action="{ attrs }">
         <v-btn
           v-bind="attrs"
-          @click="snackbar = false"
-        >
+          @click="snackbar = false">
           Fermer
         </v-btn>
       </template>
@@ -60,10 +54,7 @@
         </v-container>
     </div>
 </template>
-
 <script>
-//import User from "../models/user";
-
 const axios = require('axios');
 export default {
     name:"SignUp",
@@ -95,7 +86,7 @@ export default {
     }
       },
     methods: {
-      validate_signup () { //Function to créate new user in database
+      validate_signup () { //Function to create new user in database
         const newUser = {
             username: this.user.username,
             email:this.user.email,
@@ -142,10 +133,6 @@ export default {
             let user_string = JSON.stringify(user);
             sessionStorage.setItem("user", user_string);
             console.log(sessionStorage.getItem("user"));
-            let payload = {'token': resp.data.token,'username': resp.data.username, 'userRole': resp.data.userRole}
-            console.log(payload);
-            this.$store.dispatch('connected',payload);
-            console.log(this.$store.state.connexion.isConnected);
             return {message:`Vous êtes connecté sous le nom de ${resp.data.username}`}
             }
             if (resp.status ==200) {

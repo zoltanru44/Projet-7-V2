@@ -11,7 +11,6 @@
       <router-link v-if="(isConnected()==true)" to="/profile"> Mon profil</router-link>
       <span v-if="(isConnected()==true)"> | </span>
       <router-link v-if="(isConnected()==true)" to="/logout"> Déconnexion </router-link>
-     
     </div>
     <router-view/>
     <!--FOOTER-->
