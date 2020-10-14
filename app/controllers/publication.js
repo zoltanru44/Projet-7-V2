@@ -123,19 +123,7 @@ exports.getPosts = (req, res, next) => {
                 this.comments = comments;
             }
         }
-        class Comment {
-            constructor(date, time, id, id_author, id_post, username, modification_date, modification_time, text) {
-                this.date = date;
-                this.time = time;
-                this.id = id;
-                this.id_post = id_post;
-                this.id_author = id_author;
-                this.username = username;
-                this.modification_date = modification_date;
-                this.modification_time = modification_time;
-                this.text = text;
-            }
-        }
+
         //Request with JOIN between users and posts
         const firstPost = (req.query.page * 5) - 5;
         console.log("nombre du premier post");
