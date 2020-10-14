@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-//const Post = require('../models/post');
 const mysql = require('mysql');
 require('dotenv').config();
 
@@ -157,8 +156,6 @@ exports.getPosts = (req, res, next) => {
                         return res.status(400).json({ err });
                     }
                     if (rows.length >= 1) {
-                        //console.log(rows);
-                        console.log(rows[0].date);
                         allPosts = rows;
                         resolve(allPosts);
                     } else {
@@ -171,7 +168,6 @@ exports.getPosts = (req, res, next) => {
         //function to get comments from one post
         let toGetCommentsFromPost = function(item) {
                 return new Promise(resolve => {
-                    const commentArray = []
                     const sql_get_comments =
                         `SELECT comments.id, id_author, id_post, DATE_FORMAT(date,"%Y/%m/%d") as date,time,text,DATE_FORMAT(modification_date,"%Y/%m/%d") as modification_date, modification_time, username
                 FROM comments
@@ -219,9 +215,8 @@ exports.getPosts = (req, res, next) => {
             return res.status(201).json({ allPostsCommentsGet });
         };
         toGetPostsComments();
-
     }
-    //GETCOMMENTS CONTROLLER
+    //GETCOMMENTS CONTROLLER 
 exports.getComments = (req, res, next) => {
     class Comment {
         constructor(date, time, id, id_author, id_post, username, modification_date, modification_time, text) {
@@ -275,10 +270,6 @@ exports.getComments = (req, res, next) => {
         }
     })
 };
-
-
-
-
 //DELETEPOST CONTROLLER
 exports.deletePost = (req, res, next) => {
         const sql_get_post = `SELECT * FROM posts WHERE id='${req.query.id_post}';`
