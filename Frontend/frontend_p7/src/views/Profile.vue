@@ -11,7 +11,7 @@
                 <!--Information about user -->
                 <v-list-item>
                         <v-list-item-content>
-                            <v-list-item-title class="title">Vous êtes connectés sous le nom de <br/> {{user.username}}</v-list-item-title>
+                            <v-list-item-title class="title">Vous êtes connectés sous le nom de <br/> {{currentUser.username}}</v-list-item-title>
                             <v-list-item-subtitle>Compte <span v-if="user.role ==3">Utilisateur</span><span v-if="user.role ==2">Modérateur</span><span v-if="user.role ==1">Administrateur</span></v-list-item-subtitle>
                         <div cols="8" md="10">
                             <!--Delete btn-->
