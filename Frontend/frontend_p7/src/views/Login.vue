@@ -143,7 +143,7 @@ export default {
         justify-content:center;
         margin: 10px;
         &__label{
-            font: size 10px;
+            font-weight: 10px;
             margin-bottom: 3px;
         }
         &__input{
