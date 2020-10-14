@@ -33,6 +33,7 @@
 export default {
   data:()=>({
     links: [
+      'PictForum',
       'A propos',
       'FAQ',
       'Mentions légales',
