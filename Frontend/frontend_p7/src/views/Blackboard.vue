@@ -131,7 +131,7 @@
                         <v-btn class="mx-2" dark color="primary" @click="page++,shuffleArray(), getAllPosts()" v-if="page<(numberOfPosts/5)">
                             <v-icon >mdi-arrow-right-circle-outline </v-icon>
                         </v-btn>
-                        <p>{{page}} sur {{maxPages}} - {{numberOfPosts}} Commentaires</p>
+                        <p>{{page}} sur {{maxPages}} - {{numberOfPosts}} Posts</p>
                     </div>
                 <!--Dialog box for modify post-->
                     <v-dialog v-model="dialog_modif" max-width="400">
